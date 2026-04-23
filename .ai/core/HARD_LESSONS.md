@@ -113,6 +113,23 @@ The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative sourc
 
 ---
 
+## HL-13 — Design artifacts shared in chat MUST land in the repo before the session ends; prose distillation is lossy
+
+**Discovered:** Sprint 01 Session 5, 2026-04-23 (owner post-Session-5 feedback — after I had already built the wrong UI)
+**Summary:** On 2026-04-22 the owner shared 5 screenshots of the live LTAT coach portal (`tourtest.ltat.org/coach-exercises-<base64>.html`) with the Session 1 agent via chat. Session 1 distilled the visuals into prose — `.ai/core/ltat-fitness-findings.md §2` + `HL-4` + `.ai/core/BRIEFING.md`. The screenshots themselves were NOT saved to the repo. When Session 5 opened as a fresh agent in a new conversation, only the prose remained. Result: I built a modal-driven mobile-first Plan Builder instead of the inline-grid desktop-first layout the screenshots actually showed. The owner had to re-share screenshots mid-Session-5 and explain every decision again. This is the exact "having to re-explain is frustrating" failure the AI Agent Framework exists to prevent.
+
+I also skimmed past `.ai/core/BRIEFING.md` line 10, which plainly states both coach AND player record actuals. I built as if only the player did. FM-1 (the skimmer) caught me despite the framework's Conformance Check — because the Check's 8 questions don't force the agent to cite BRIEFING verbatim on any specific feature. A skimmer can answer the Check correctly while still missing the one line that would have prevented a session's worth of misbuilding.
+
+**Why it matters:** A screenshot carries layout, proximity, proportion, and column-count information that no amount of prose can encode without loss. "Inline row with 8 numeric cells, some greyed" is trivially obvious from the screenshot and genuinely ambiguous from the text. The framework's memory-to-repo promotion rule (CLAUDE.md §6.2 artifact #7) covers text facts; it must be extended to binary design artifacts. **Standing rule:** every screenshot, Figma export, design sketch, reference image, or video shared in chat is saved to `.ai/research-notes/screenshots/` (images) or `.ai/research-notes/design/` (other) within the same session it is received, accompanied by a short sibling `.md` note with: (1) what it shows, (2) who shared it, (3) when, (4) which feature/screen it references, (5) any spoken words the owner said alongside it. Do this the moment the artifact arrives, not at session close.
+
+**Also the "I read BRIEFING" gap:** for every feature an agent is about to build, the Conformance Check answers MUST cite the relevant sentences from BRIEFING + ltat-fitness-findings verbatim, not paraphrased. An agent who would have quoted "coach and player both record actuals" from BRIEFING.md would have built the shared-grid UI correctly.
+
+**Where it lives in code:** Process rule + new canonical UX doc `.ai/core/plan_builder_ux.md` that locks the screenshot-derived design. CLAUDE.md §6.2 is being updated to require binary-artifact promotion. Session 6 rebuild plan in `prompt_for_session_6.md`.
+
+**Cross-refs:** HL-4 (also derived from those screenshots — coaches-work-in-weeks); `.ai/core/ltat-fitness-findings.md §2`; `.ai/core/BRIEFING.md:10`; `.ai/core/plan_builder_ux.md`; Session 5 handover §"What was wrong."
+
+---
+
 ## HL-12 — CodeIgniter 4 ships with CSRF protection COMMENTED OUT in `app/Config/Filters.php` globals
 
 **Discovered:** Sprint 01 Session 5, 2026-04-23 (while smoke-testing the Plan Builder POST with no token)

@@ -4,7 +4,18 @@
 
 ## Current Status
 
-**Session 5 closed cleanly (2026-04-23).** Plan Builder shipped end-to-end in a single session — all six items from the Session 5 prompt landed complete, ahead of the honest "1-3 is the realistic target" projection. Plus one bonus engine-engineer call: CSRF protection enabled globally (HL-12). Stakeholders can now log in as Coach, build a weekly plan through the Bootstrap 5 accordion + modal drilldown, save it, and see it from both the Coach and Player sides. Unauthenticated requests 302 to HitCourt login. Test suite at 23/23 (+11 since Session 4's 12/12). Commits: `e86a658` (conformance) → `ea3f40a` (pre-work) → `0303225` (Plan Builder end-to-end) → `d153c9a` (AuthFilter) → session-close commit.
+**Session 5 closed — BUT UI must be rebuilt in Session 6.** After Session 5's close commit, the owner reviewed the Plan Builder and identified that the UI/UX is materially wrong:
+- Modal-driven add-exercise flow forces ~6 taps per exercise; the correct pattern is an **inline row in a wide grid** (like the live LTAT system the owner had shown in screenshots with Session 1, which I missed because the screenshots were never saved to the repo — see HL-13).
+- Mobile-first was the wrong default; the primary workstation is a laptop/iPad in the gym while the player exercises. Mobile is a travel-mode fallback.
+- Save redirects to a read-only badge view. Should redirect to the SAME editable grid with targets filled and actuals editable, so the coach can immediately start punching values during a session.
+- BRIEFING.md clearly states **both coach AND player** record actuals (line 10); I built as if only the player did. Owner explicitly called this out as documented and missed.
+
+**What's being preserved:** backend (models, routes, controllers except view hookups), AuthFilter, CSRF, IdObfuscator, DB schema, Falcon theme work, tests. All green.
+**What's being rebuilt in Session 6:** Plan Builder view + JS (inline grid, no modal), Coach plan-show view (editable grid), Player plan-show view (editable grid, target-locked/actual-editable), responsive breakpoints, redirect-after-save target, plus 2 new POST routes (`/coach/plans/{obf}`, `/player/plans/{obf}`).
+
+Canonical UX locked in `.ai/core/plan_builder_ux.md` — every agent from here on reads this BEFORE any UI work. HL-13 now requires design artifacts to land in `.ai/research-notes/screenshots/` the moment they're shared in chat.
+
+Test suite at 23/23 at Session 5 close. Commits: `e86a658` (conformance) → `ea3f40a` (pre-work) → `0303225` (Plan Builder — wrong UI) → `d153c9a` (AuthFilter) → `5c6b06e` (Session 5 close) → `<next>` (post-close UX correction).
 
 **Session 4 closed cleanly (2026-04-23).** Architecture retrospective — scope pivoted mid-way from "Plan Builder" to "implement the 7 architecture improvements." Zero feature code; sealed framework untouched; all additions in CLAUDE.md and `.ai/core/templates/`. Commits: `30fb22b` + `5a4d81e`.
 
@@ -106,7 +117,11 @@ SSO foundation: composer install + firebase/php-jwt ^7.0, JwtValidator + 10 unit
 
 ## Blockers
 
-**None.** Session 6 is unblocked. Start point: Plan Builder EDIT mode + Player Log-Actuals modal. Full detail: `.ai/.daily-docs/24 Apr 2026/prompt_for_session_6.md`.
+**None functional.** Session 6 is unblocked. Scope: **rebuild Session 5's UI** per `.ai/core/plan_builder_ux.md` (LOCKED by owner 2026-04-23). Inline wide grid, both coach and player can edit actuals, responsive not mobile-first, save redirects to editable grid. Full detail: `.ai/.daily-docs/24 Apr 2026/prompt_for_session_6.md`.
+
+**Two Tier-1 edits pending owner approval** (not made because CLAUDE.md and BRIEFING.md are owner-only):
+- BRIEFING.md — escalate the "both record actuals" line to a standalone paragraph so no agent can skim past it.
+- CLAUDE.md §6.2 artifact 7 — extend memory-to-repo promotion to explicitly include binary design artifacts (screenshots, Figma, videos), landing in `.ai/research-notes/screenshots/` or `.ai/research-notes/design/` the moment they arrive.
 
 ## Noticed this Session 5, for Future (NOT done here)
 
