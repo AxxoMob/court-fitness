@@ -55,7 +55,7 @@
                         <p class="cf-plan-card__notes"><?= esc($plan['notes']) ?></p>
                     <?php endif; ?>
                     <footer class="cf-plan-card__foot">
-                        <a class="cf-btn cf-btn--primary cf-btn--block" href="<?= base_url('/player/plans/' . (int) $plan['id']) ?>">
+                        <a class="cf-btn cf-btn--primary cf-btn--block" href="<?= base_url('/player/plans/' . $plan['obfuscated_id']) ?>">
                             View plan &rarr;
                         </a>
                     </footer>

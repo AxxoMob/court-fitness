@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Player;
 
 use App\Controllers\BaseController;
+use App\Support\IdObfuscator;
 use CodeIgniter\HTTP\RedirectResponse;
 
 /**
@@ -46,6 +47,11 @@ final class Dashboard extends BaseController
              ORDER BY tp.week_of DESC",
             [$userId]
         )->getResultArray();
+
+        foreach ($plans as &$p) {
+            $p['obfuscated_id'] = IdObfuscator::encode((int) $p['id']);
+        }
+        unset($p);
 
         return view('player/dashboard', ['plans' => $plans]);
     }

@@ -4,28 +4,30 @@
 <section class="cf-section">
     <header class="cf-section__head">
         <h1 class="cf-h1">Welcome, Coach <?= esc(session()->get('first_name')) ?></h1>
-        <p class="cf-subtle">Your dashboard — more screens unlock in Session 4.</p>
+        <p class="cf-subtle">Build a week of training or review your squad.</p>
     </header>
 
     <div class="cf-stat-grid">
-        <div class="cf-card cf-stat">
+        <a class="cf-card cf-stat" href="<?= base_url('/coach/players') ?>">
             <span class="cf-stat__value"><?= (int) ($playerCount ?? 0) ?></span>
             <span class="cf-stat__label">Assigned players</span>
-        </div>
-        <div class="cf-card cf-stat">
+        </a>
+        <a class="cf-card cf-stat" href="<?= base_url('/coach/plans') ?>">
             <span class="cf-stat__value"><?= (int) ($planCount ?? 0) ?></span>
             <span class="cf-stat__label">Training plans</span>
-        </div>
+        </a>
     </div>
 
-    <div class="cf-card">
-        <h2 class="cf-h2">Coming up</h2>
-        <p class="cf-subtle">Session 4 delivers:</p>
-        <ul class="cf-list">
-            <li>My Players (add/search players assigned to you)</li>
-            <li>My Plans (weekly plans list with filters)</li>
-            <li>Plan Builder — the mobile-first screen for scheduling a player's week</li>
-        </ul>
+    <div class="cf-btn-stack">
+        <a class="cf-btn cf-btn--primary cf-btn--block" href="<?= base_url('/coach/plans/new') ?>">
+            + New training plan
+        </a>
+        <a class="cf-btn cf-btn--secondary cf-btn--block" href="<?= base_url('/coach/plans') ?>">
+            My plans
+        </a>
+        <a class="cf-btn cf-btn--ghost cf-btn--block" href="<?= base_url('/coach/players') ?>">
+            My players
+        </a>
     </div>
 </section>
 <?= $this->endSection() ?>

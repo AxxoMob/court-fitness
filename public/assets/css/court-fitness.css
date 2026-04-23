@@ -337,11 +337,53 @@ code {
     font-size: 0.8rem;
 }
 
+/* ---------- Plan Builder ---------- */
+
+.cf-plan-builder { padding-bottom: 96px; /* space for sticky save bar */ }
+
+.cf-save-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--cf-surface);
+    border-top: 1px solid var(--cf-border);
+    box-shadow: 0 -4px 16px rgba(28, 27, 26, 0.08);
+    z-index: 20;
+}
+.cf-save-bar__inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--cf-gap-3) var(--cf-gap-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--cf-gap-3);
+}
+
+.cf-session-card {
+    background: var(--cf-surface-muted);
+    border: 1px solid var(--cf-border);
+    border-radius: var(--cf-radius-sm);
+    padding: var(--cf-gap-3);
+}
+
+/* Nudge Bootstrap accordion so the orange matches brand */
+.accordion-button:not(.collapsed) {
+    color: var(--cf-primary-dark);
+    background-color: var(--cf-primary-tint);
+}
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.15rem rgba(242, 101, 34, 0.25);
+}
+
 /* ---------- Tablet and up ---------- */
 
 @media (min-width: 720px) {
     .cf-plan-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
+    }
+    .cf-plan-builder {
+        max-width: 880px;
+        margin: 0 auto;
     }
 }
