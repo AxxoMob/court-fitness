@@ -113,6 +113,21 @@ The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative sourc
 
 ---
 
+## HL-12 — CodeIgniter 4 ships with CSRF protection COMMENTED OUT in `app/Config/Filters.php` globals
+
+**Discovered:** Sprint 01 Session 5, 2026-04-23 (while smoke-testing the Plan Builder POST with no token)
+**Summary:** `app/Config/Filters.php` ships with `// 'csrf'` in the `$globals['before']` array — the default is NO CSRF enforcement unless the project enables it explicitly. `Config\Security` having `$csrfProtection = 'cookie'` is a red herring — that config controls the MODE of CSRF protection if enabled, not whether it runs. A form using `csrf_field()` creates the hidden input and sets the cookie, but the server never validates the submitted token until the filter is activated.
+
+A POST without a CSRF field that appears to succeed on a fresh CI4 project is the canonical failure mode: the developer assumes CSRF is "on by default" because the helper exists and the cookie is set, but the server never actually checks. I caught this because the Plan Builder POST succeeded even when my curl test omitted the token.
+
+**Why it matters:** Every form in court-fitness is a potential CSRF vector until the filter is live. The fix is one line: uncomment `'csrf'` in the globals array (landed in commit `0303225`, with an `except` list for `sso` and `dev/sso-stub`). The same trap exists in every new CI4 project in the portfolio. Standing rule: on every fresh CI4 project, **day 1 smoke test is to POST a form without a token and confirm 403**. If it isn't 403, the filter isn't wired.
+
+**Where it lives in code:** `app/Config/Filters.php` — `$globals['before']` must contain `'csrf' => ['except' => [...]]`. See also `app/Filters/AuthFilter.php` for the companion auth filter that uses the same pattern.
+
+**Cross-refs:** HL-8 (the broader "auth boundary tests before features" rule — this is its CSRF cousin); commit `0303225`; Session 5 handover §"Security findings."
+
+---
+
 ## HL-9 — BPP and training-load source docs are generic S&C, NOT tennis-specific; ltat-fitness's catalogue IS tennis-specific
 
 **Discovered:** Sprint 0 Session 1, 2026-04-22

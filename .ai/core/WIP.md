@@ -4,7 +4,9 @@
 
 ## Current Status
 
-**Session 4 closed cleanly (2026-04-23).** This session was an architecture retrospective — scope pivoted mid-way at owner's request from "Plan Builder" to "evaluate and implement the 7 architecture improvements." Zero feature code written this session; sealed framework file untouched; all additions in CLAUDE.md and new project-specific templates under `.ai/core/templates/`. Commits: `30fb22b` (architecture) + `5a4d81e` (close).
+**Session 5 closed cleanly (2026-04-23).** Plan Builder shipped end-to-end in a single session — all six items from the Session 5 prompt landed complete, ahead of the honest "1-3 is the realistic target" projection. Plus one bonus engine-engineer call: CSRF protection enabled globally (HL-12). Stakeholders can now log in as Coach, build a weekly plan through the Bootstrap 5 accordion + modal drilldown, save it, and see it from both the Coach and Player sides. Unauthenticated requests 302 to HitCourt login. Test suite at 23/23 (+11 since Session 4's 12/12). Commits: `e86a658` (conformance) → `ea3f40a` (pre-work) → `0303225` (Plan Builder end-to-end) → `d153c9a` (AuthFilter) → session-close commit.
+
+**Session 4 closed cleanly (2026-04-23).** Architecture retrospective — scope pivoted mid-way from "Plan Builder" to "implement the 7 architecture improvements." Zero feature code; sealed framework untouched; all additions in CLAUDE.md and `.ai/core/templates/`. Commits: `30fb22b` + `5a4d81e`.
 
 **Session 3 (previous) remains the most recent feature session:** DB migrated + seeded (3+12+204+7 taxonomy + 1 coach + 2 players + 1 plan + 3 entries), SSO working end-to-end, Player Dashboard renders on mobile with orange branding. Commit `2140d87`.
 
@@ -19,6 +21,31 @@
 - SEALED_FILES.md updated with live watchlist.
 
 **Owner directive passed to Session 5 (post-close, 2026-04-23):** HitCourt-family visual cohesion. All Rajat's projects run Falcon theme — court-fitness's CSS should match Falcon's font stack exactly (see `prompt_for_session_5.md` for the full `font-family` string + 16.8px base size). Falcon reference: https://prium.github.io/falcon/v2.8.2/default/index.html.
+
+## This Session's Scope (Session 5, 2026-04-23) — ALL DONE
+
+**In scope — DONE:**
+- ✅ Bootstrap 5.3.3 via CDN in `app/Views/layouts/main.php` (CSS head, JS bundle footer), integrity-pinned, with a `scripts` render section for per-page JS.
+- ✅ Falcon font stack (`Poppins, -apple-system, …, "Segoe UI Emoji", "Segoe UI Symbol"`) at 16.8px baked into `--cf-font-family` + `--cf-font-size-base`; `--bs-body-font-family`, `--bs-body-font-size`, `--bs-primary` overrides prevent Bootstrap defaults bleeding through. CLAUDE.md §5.4 compliant.
+- ✅ `App\Support\IdObfuscator` — URL-safe base64 of `"cf:<id>"`. 9/9 unit tests including the edge cases (empty, garbage, valid base64 without prefix, non-numeric payload, id=0, plain integer input).
+- ✅ `App\Controllers\Coach\Plans` — `index()`, `new()`, `store()`, `show()`. Server-side validation (Monday-only week, player belongs to coach, target length ≤100, unit kg|lb, each entry's date in the week window). Transactional insert. Obfuscated redirect on success.
+- ✅ Plan Builder view + `public/assets/js/plan-builder.js` — 7-day Bootstrap accordion auto-rendered from `week_of`, per-day session cards (morning/afternoon/evening), Bootstrap modal drilldown (Type → Category → Subcategory), type-specific target fields (Cardio: HR%/min, Weights: sets×reps@weight+rest, Agility: reps+rest), sticky save bar, exercises-count badge. Out-of-window entries are auto-pruned on week change. Mobile + desktop both verified at 375px / 1280px.
+- ✅ `App\Controllers\Coach\Plans::index` → `app/Views/coach/plans/index.php` — cards with player + week_of + target + entry count; FAB at bottom.
+- ✅ `App\Controllers\Coach\Plans::show` → `app/Views/coach/plans/show.php` — plan detail grouped by day + session, target-blob badges render generically.
+- ✅ `App\Controllers\Coach\Players::index` → `app/Views/coach/players/index.php` — assigned-players list only (no add-player form; owner ruled HitCourt is the only identity source).
+- ✅ `App\Controllers\Player\Plans::show` → `app/Views/player/plans/show.php` — read-only plan detail with "Logging your actuals unlocks in the next session update." copy for Session 6 handoff. Player dashboard now uses obfuscated IDs.
+- ✅ `App\Filters\AuthFilter` + registration in `app/Config/Filters.php` globals — unauthenticated requests 302 to `${HITCOURT_BASE_URL}/login?return=<path>`. Except list: `'/'`, `'sso'`, `'dev'`, `'dev/sso-stub'`. 2 unit tests.
+- ✅ **Bonus (engine-engineer call):** CSRF protection enabled globally. HL-12 added. Except list mirrors AuthFilter's (`sso`, `dev/sso-stub`). Verified with a cookieless POST → 403 and a tokened POST → 303 → 200 show page.
+- ✅ Coach Dashboard view updated — CTAs now point at the new sub-screens, not Session 3's "coming soon" copy.
+- ✅ End-to-end smoke tested via curl: log in → build a 1-entry Agility plan → 303 to `/coach/plans/Y2Y6NQ` → 200 show page with "Plan saved" flash + the subcategory name. DB confirms plan id=5, entry id=8.
+
+**In scope — DEFERRED TO SESSION 6 (not done this session):**
+- ❌ POST actuals to `plan_entries.actual_json` — the log-actuals modal. This was always Session 6 scope per the Session 5 prompt.
+- ❌ Coach-sees-player-actuals refresh view.
+- ❌ PWA manifest + service worker.
+- ❌ Plan Builder EDIT mode — Session 6 once create is stable.
+
+**Out of scope (deferred further):** assessments kernel, tennis-specific testing catalogue, training-load / ACWR, fitness directory, export, admin real UI, multi-language, Capacitor wrap, rich player analytics.
 
 ## This Session's Scope (Session 3, 2026-04-23) — COMPLETED
 
@@ -47,7 +74,23 @@
 
 **Out of scope (deferred further):** assessments kernel, tennis-specific testing catalogue, training-load / ACWR, fitness directory, export, admin real UI, multi-language, Capacitor wrap.
 
-## Latest: Session 3 (2026-04-23, Sprint 01 Session 2)
+## Latest: Session 5 (2026-04-23, Sprint 01 Session 4)
+
+Full detail: `.ai/.daily-docs/23 Apr 2026/session_5_handover.md`.
+
+Highlights — the stakeholder-visible Plan Builder flow is end-to-end working:
+- Coach Rajat logs in via `/dev/sso-stub?as=coach`, lands on coach dashboard with real CTAs.
+- "+ New training plan" → Plan Builder mobile-first form with 7-day accordion, modal drilldown (Type → Category → Subcategory → type-specific target fields for Cardio/Weights/Agility), sticky save bar.
+- Save persists `training_plans` + `plan_entries` in a single transaction; redirects to `/coach/plans/Y2Y6<obf>` opaque URL; show page renders each day's sessions with target-badge pills.
+- Coach My Plans lists both the seeded demo plan and the newly-saved one (2 cards at end of session).
+- Coach My Players lists assigned players — no add-player form, per owner's HitCourt-is-sole-identity ruling.
+- Player side: tapping a plan card on the dashboard now reaches `/player/plans/{obf}` instead of 404ing. Actuals-logging UI is the Session 6 deliverable.
+- Unauthenticated `/coach/*`, `/player/*` 302 to HitCourt login with a `?return=<path>` query.
+- CSRF enforcement is live (was shipped commented-out by CI4 default — HL-12 captures the gotcha).
+
+**Falcon theme cohesion delivered.** Owner's post-Session-4 directive to match Falcon's exact font stack is in court-fitness.css — Poppins + system fallbacks + emoji font, 16.8px base, with Bootstrap 5 variable overrides so Bootstrap's defaults don't leak through. HitCourt-family modules now share a typographic baseline.
+
+## Previous: Session 3 (2026-04-23, Sprint 01 Session 2)
 
 Goal: deliver a stakeholder-visible Player Dashboard on a phone. Achieved. Owner's Session 2 feedback ("can't see anything; stakeholders care about Player Dashboard + mobile compatibility") drove the Session 3 scope shift — backend plumbing + exercise catalogue got compressed into one session so the Player Dashboard could move up from Session 5 to Session 3.
 
@@ -63,12 +106,22 @@ SSO foundation: composer install + firebase/php-jwt ^7.0, JwtValidator + 10 unit
 
 ## Blockers
 
-**None.** Session 4 is unblocked.
+**None.** Session 6 is unblocked. Start point: Plan Builder EDIT mode + Player Log-Actuals modal. Full detail: `.ai/.daily-docs/24 Apr 2026/prompt_for_session_6.md`.
 
-## Noticed this Session, for Future (NOT done here)
+## Noticed this Session 5, for Future (NOT done here)
 
-- **File-naming convention:** per `CLAUDE.md` §6 the handover filename should use "N = session number of the day." Session 2 was named `session_2_handover.md` using PROJECT session number (since Session 1 was a different day, it happened to also be Session 1 of its day). Session 3 is the second session of day 2026-04-23, so under the convention it should be `session_2_handover.md` — but that collides with Session 2's handover in the same folder. I'm using PROJECT session number (`session_3_handover.md`) throughout to avoid collision. Propose CLAUDE.md §6 clarification: use project session number as the canonical rule.
-- Player Dashboard card links currently point at `/player/plans/{id}` which doesn't route yet. Session 4 adds that route + view; until then tapping the card 404s.
+- **Plan Builder is POST-only create for now.** Editing an existing plan (`GET /coach/plans/{obf}/edit` + `PUT/POST /coach/plans/{obf}`) is explicit Session 6 scope. Until then, the "coach realises the week needs a change" flow is: duplicate the plan manually, delete the old — which isn't good UX. Priority follow-up.
+- **Plan detail show views render a generic target-badge loop.** Keys display literally as-is (`max_hr_pct: 75`, `rest_sec: 90`). A future polish pass should prettify these — e.g. "HR 75%", "rest 90s" — matching the summariser in plan-builder.js. Not urgent; readability is acceptable.
+- **Target-shape validation is UI-only.** The Plan Builder JS writes `{ max_hr_pct, duration_min }` for Cardio etc., but the server accepts any JSON bag. If a different client POSTs malformed shapes, `target_json` will silently store garbage. Adding a server-side per-type schema check is a Session 7+ hardening task. Shapes documented in `.ai/core/exercise_json_shapes.md`.
+- **`Coach\Plans::show` doesn't obfuscate entry IDs.** Only the plan ID is opaque. Entry IDs don't appear in URLs yet, so no immediate exposure — but when Session 6 adds `/player/plans/{obf}/entries/{entry_id}/log`, that entry_id should also go through the obfuscator.
+- **Weight unit is plan-level, not entry-level.** `plan_entries.target_json.weight` is a bare number; the `kg|lb` lives on `training_plans`. If a future feature allows per-entry unit override, this needs a re-think. Documented in `exercise_json_shapes.md`.
+- **Dev server on PHP built-in: HEAD requests return 404 where GET returns 302.** Curious quirk of CI4 + PHP's built-in server. Not a real app bug (real Apache/nginx won't show this), but if a future smoke test script uses `curl -I`, expect surprises. Use `curl -si` for redirects.
+- **Seed data has a gap in fitness_subcategories IDs.** AUTO_INCREMENT went 1..231 because the seeder insert ran twice during Session 3 development (the slug-collision fix). Max id=231 but only 204 rows. This is cosmetic; FKs don't care about gaps. Noted so a future agent doesn't debug it as a regression.
+- Inherited follow-ups from previous sessions still valid: trainer→coach vocabulary in the long-tail of legacy docs, base64-URL-obfuscation question answered (`IdObfuscator` is the canonical helper now), tennis-specific testing metrics for Sprint 03+, multi-language for Sprint 02+, PWA install prompt UX, xlsx-survey scripts deletion, `.env`'s dev-only JWT secret replacement when real HitCourt lands.
+
+## Noticed this Session 3 (historical, carried from previous close)
+
+- Player Dashboard card links now point at `/player/plans/{obfuscated_id}` and DO route (fixed Session 5).
 - When HitCourt's real SSO comes online, replace the dev-only `DevSsoStub` routes with an explicit `throw new PageNotFoundException` in production. Currently gated on `ENVIRONMENT === 'development'` at the routes level — production will 404 naturally.
 - Session cookie works via CI4's default FileHandler. `writable/session/` already exists (CI4 default). For production behind a load balancer we'd want Redis or DB session handler — not Sprint 01 concern.
 - `.env` has a dev-only `HITCOURT_JWT_SECRET` with a clearly-marked placeholder. When real HitCourt is ready, replace the value in dev AND production `.env` files simultaneously (owner's responsibility).
@@ -82,6 +135,53 @@ SSO foundation: composer install + firebase/php-jwt ^7.0, JwtValidator + 10 unit
 - URL shape for plan IDs — plain CI4 (`/player/plans/42`) vs ltat_fitness-style base64 (`/player/plans/MCMjlzA=`). Session 4 default: plain CI4 unless owner says otherwise.
 - Training Target dropdown list — 7 default items in place; owner will review in Session 5 once the Plan Builder form renders.
 - Whether to rename `.ai2/` to something self-describing (owner's call).
+
+## Verification Commands — results at end of Session 5
+
+```
+$ git log --oneline -7
+d153c9a sprint-1: AuthFilter — redirect unauth'd requests to HitCourt login
+0303225 sprint-1: Plan Builder — coach creates weekly plan end-to-end (session 5)
+ea3f40a sprint-1: pre-work — Bootstrap 5 + Falcon font stack + IdObfuscator
+e86a658 sprint-1: session 5 open — Framework Conformance Check committed
+c26a25c docs: Falcon theme cohesion + WIP Session 4 close state
+5a4d81e sprint-1: session 4 close (architecture retrospective; Plan Builder → session 5)
+30fb22b framework: architecture evolution — 7 improvements + re-entry reading
+
+$ git status      → clean at session close (verified before close commit)
+
+$ ./vendor/bin/phpunit tests/unit/
+  23 tests, 48 assertions — all pass (10 JwtValidator + 9 IdObfuscator + 2 HealthTest + 2 AuthFilter)
+
+$ php spark migrate:status
+  3 migrations applied — no new migrations this session (schema was already Session 3 design)
+
+$ /c/xampp/mysql/bin/mysql.exe -uroot court_fitness -e "SELECT COUNT(*) FROM training_plans; SELECT COUNT(*) FROM plan_entries;"
+  training_plans: 5   (1 Session 3 demo + 4 created during Session 5 smoke tests)
+  plan_entries:   8   (3 Session 3 demo + 5 across Session 5 smoke tests)
+
+$ php spark serve --port 8080   (background, still running at close)
+
+Smoke-tested URL sequence, coach side:
+  /dev/sso-stub?as=coach   → 200, lands on Coach Dashboard with CTAs
+  /coach/plans             → 200, My Plans grid (2 cards)
+  /coach/plans/new         → 200, Plan Builder form
+  POST /coach/plans (valid CSRF token + 1 entry) → 303 → /coach/plans/Y2Y6NQ → 200 with "Plan saved." flash
+  /coach/plans/garbage     → 404 (IdObfuscator::decode returns null, triggers PageNotFoundException)
+  /coach/players           → 200, list of assigned players
+
+Smoke-tested URL sequence, player side:
+  /dev/sso-stub?as=player  → 200, Player Dashboard (the Session 3 orange screen)
+  /player/plans/Y2Y6MQ     → 200, read-only plan detail
+  /player/plans/garbage    → 404
+
+Smoke-tested unauthenticated:
+  /coach/plans             → 302 Location: https://www.org.hitcourt.com/login?return=%2Fcoach%2Fplans
+  /player/plans/Y2Y6MQ     → 302 Location: https://www.org.hitcourt.com/login?return=%2Fplayer%2Fplans%2FY2Y6MQ
+  /                        → 200 (welcome; excluded from AuthFilter)
+  /dev                     → 200 (excluded)
+  POST /coach/plans (no CSRF token) → 403 (CSRF filter)
+```
 
 ## Verification Commands — results at end of Session 3
 
