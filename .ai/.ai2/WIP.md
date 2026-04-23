@@ -2,88 +2,84 @@
 
 ## Current Sprint: Sprint 01 — "Coach plans a week, player logs actuals, on a phone"
 
-(Sprint 00 closed on 2026-04-22 with project bootstrap complete; Sprint 01 has NOT started — awaiting 3 answers from owner.)
-
 ## Current Status
 
-**Sprint 00 closed, Session 1 of 2026-04-22 complete.** All framework scaffolding in place. No code has been written in `court-fitness` (that starts in Sprint 01 Session 1). Waiting on 3 answers from Rajat before Sprint 01 Session 1 can begin.
+**Session 2 in progress (2026-04-23)** — Sprint 01 Session 1, housekeeping phase.
 
-## This Session's Scope (Session 1, 2026-04-22)
+First work: fixing stale path references left over from the owner's folder reorganisation between sessions (tier-named sub-folders → flat `.ai/.ai2/`). No code written yet this session. All three Sprint 00 open questions are resolved; Sprint 01 is unblocked.
 
-**In scope (this was Sprint 00):**
-- Read AI_AGENT_FRAMEWORK.md v1.0 and confirm understanding with owner
-- Read `C:\xampp\htdocs\ltat-fitness-module` — docs, live SQL dump (via grep), assessment models/controllers, exercise taxonomy tables, helpful-project-documents (BPP PDF + 3 xlsx/xlsm)
-- Clarify scope with owner (multiple rounds); settle on: coach-builds-weekly-plan + player-logs-actuals as Sprint 01 scope
-- Produce all framework-mandated documents (CLAUDE.md at root, plus all `.ai/` tier 1-4 files)
-- Organise `.ai/` into sub-folders by tier (per owner's explicit instruction, Session 1 mid-work)
-- Draft Sprint 01 plan with enough detail that Session 2 can execute
-- Init git with a clean first commit
+## This Session's Scope (Session 2, 2026-04-23)
 
-**Out of scope (Sprint 00 did NOT):**
-- Write any PHP, HTML, CSS, or JavaScript in court-fitness
-- Install CodeIgniter 4
-- Create any database or run any migration
-- Push to a remote git repo (waiting on owner's answer re: repo hosting)
-- Configure any `.env`
-- Touch `ltat-fitness-module` in any way — read-only exploration only
+**In scope:**
+- **Housekeeping first:** fix `.ai/README.md`, `CLAUDE.md` §3/§6/§8/§10, and internal cross-refs in `.ai/.ai2/*`, `sprints/sprint-01/sprint-plan.md`, and `research-notes/xlsx-survey/README.md` to match the new `.ai/.ai2/` layout. Historical docs (`sprints/sprint-00/sprint-plan.md`, `.daily-docs/22 Apr 2026/session_1_handover.md`, `.daily-docs/22 Apr 2026/prompt_for_session_2.md`) get a header note rather than rewriting history.
+- Commit housekeeping as one logical unit with a descriptive message.
+- `composer install` — pull CI4 dev dependencies + the `firebase/php-jwt` library for SSO.
+- `.env` configuration: copy `env` → `.env`, set DB creds, add `HITCOURT_JWT_SECRET` and `HITCOURT_BASE_URL`.
+- Stub SSO harness for dev — a tiny route that mints test JWTs using the dev secret so I can exercise the real `/sso` endpoint locally.
+- `/sso` endpoint + `AuthFilter` — JWT unit tests written FIRST (HL-8 discipline), then the implementation.
+- Stretch if time: migrations for `users` and `coach_player_assignments`.
 
-## Latest: Session 1 (2026-04-22, Sprint 00)
+**Out of scope (deferred to later sessions):**
+- Plan-builder UI (Coach) — Session 3+.
+- Player actuals UI — Session 3+.
+- Exercise taxonomy seed (the 3 + 12 + 204 rows) — Session 3.
+- Any admin functionality — later sprint (Rajat clarified Admin is "Manager of the entire process of who does what").
+- Assessments / metric_types / testing kernel — Sprint 03+.
+- Tennis-specific testing catalogue — Sprint 03+.
+- Falcon theme, multi-language, fitness directory, exports, rich analytics — per Sprint 01 plan §"OUT of scope."
 
-**Goal:** Complete framework bootstrap and deliver a Sprint 01 plan detailed enough for Session 2 to execute without ambiguity.
+## Latest: Session 2 (2026-04-23, Sprint 01 Session 1)
 
-**Outcome:** Achieved. All six framework-mandated session-close artifacts exist (see `.ai/.daily-docs/22 Apr 2026/session_1_handover.md` for details + evidence). No blockers to continuing other than the 3 open questions to the owner.
+**Goal:** Resolve Sprint 00 blockers, fix stale path references, lay the SSO + PWA foundation, and leave Session 3 with a working `/sso` endpoint + clean migrations folder ready for the first feature tables.
 
-**Key technical decisions made** (full reasoning in session_1_handover.md §4 and HARD_LESSONS.md):
-- Schema: flat `training_plans` + `plan_entries` (NOT ltat-fitness's 12-week macrocycle hierarchy). HL-4.
-- Use foreign key constraints (contra Master Rules Set §2). HL-6.
-- UI: Bootstrap 5 mobile-first + PWA from day one; no Falcon in Sprint 01; revisit Ionic in Sprint 02 if needed.
-- Exercise targets/actuals stored as JSON blobs (reuse ltat-fitness Task 21 pattern).
-- Authentication: HitCourt SSO only, no local login. `/sso?token=` endpoint validates HS256 JWT.
-- Exercise taxonomy: seed from ltat-fitness's 3 + 12 + 204-row catalogue, schema-cleaned (see HL-5 quirks).
-- One migrations folder, one lineage (never repeat HL-1's drift).
+**Answers received from owner at session opening (all three Sprint 00 blockers closed):**
 
-## Previous: N/A (Session 1 is the first session)
+1. **JWT role claim** — HitCourt DOES send role ("Admin, Coach, Player and so on"). court-fitness reads the claim and routes accordingly.
+   - **Engineering adjustment:** `users.role` becomes `VARCHAR(20)` (not a locked ENUM), so we accept whatever HitCourt sends. Sprint 01 routes: `coach` → coach dashboard, `player` → player dashboard, `admin` (and any unknown role) → "Fitness administration is coming in a later release" placeholder. Admin features themselves stay deferred.
+   - **Admin semantics note from owner:** "Admin would be the Manager of the entire process of who does what." Scope properly when we build it (later sprint).
+2. **Dev SSO** — stub SSO locally for now; real shared secret goes in `.env` when HitCourt is ready. Both stub and real validate against the same `HITCOURT_JWT_SECRET` env var, so flipping to production means replacing a value, not code.
+3. **Git remote** — Owner already created `https://github.com/AxxoMob/court-fitness.git` and added it as `origin`. Remote was present at session open; local `.git/config` shows it correctly.
 
-## Blockers — 3 open questions to owner before Sprint 01 Session 1 begins
+## Previous: Session 1 (2026-04-22, Sprint 00)
 
-1. **JWT role claim.** Does HitCourt's SSO JWT include a `role` claim identifying coach vs player, or do we infer role another way? See `.ai/sprints/sprint-01/sprint-plan.md` §"Open questions".
-2. **Dev SSO strategy.** Stub SSO in court-fitness for local dev (recommended), or credentials to HitCourt dev/staging?
-3. **Git remote.** GitHub repo (account + public/private) or local-only for now?
+Project bootstrap. Read AI_AGENT_FRAMEWORK.md v1.0 end-to-end + the ltat-fitness-module predecessor. Produced all framework-mandated documentation (CLAUDE.md + `.ai/*`). Drafted Sprint 01 plan with day-level specificity. Nine Hard Lessons recorded (HL-1 through HL-9) + a tenth at session close (HL-10, "always `ls` the repo root first"). Full detail in `.ai/.daily-docs/22 Apr 2026/session_1_handover.md`.
 
-Defaults I will assume if no answer is received by Session 2 start:
-1. Assume JWT carries a `role` claim. If it doesn't, Sprint 01 scope adjusts mid-session.
-2. Build a stub SSO for local dev.
-3. Local-only git; add remote when owner provides.
+Between Session 1 and Session 2, owner reorganised `.ai/` — collapsed the four tier-named sub-folders into a single flat `.ai/.ai2/`.
+
+## Blockers
+
+**None.** Session 2 is unblocked and executing.
 
 ## Noticed this Session, for Future (NOT done here)
 
-- Rajat may want to rename `trainers` terminology to `coaches` throughout court-fitness (ltat-fitness uses "trainer" interchangeably; screenshots show coach portal uses "Coach"). Confirm vocabulary in Session 2 pre-work.
-- `fitness_subcategories.slug` column in ltat-fitness is often equal to `name` verbatim (spaces not slugified). Fix during seed.
-- `exercise_type.status` semantics inverted (0=Active). Normalise to `is_active` during seed.
-- The existing ltat-fitness `/coach-exercises-{base64id}.html` URL pattern obfuscates plan IDs with base64. Decide whether court-fitness follows the same pattern or uses CI4 default `/coach/training-plans/{id}`.
-- Tennis-specific testing metrics are a researched-seed item for Sprint 03+ when the fitness-testing kernel lands.
-- Multi-language (Thai/English) support — the ltat-fitness coach portal has a Tha/Eng toggle; court-fitness deferred. Revisit Sprint 02.
-- PWA install prompt UX (iOS Add-to-Home behaves differently from Android Chrome) — plan for Sprint 02.
-- `.ai/research-notes/xlsx-survey/` contains Python scripts used in Session 1 to inspect the BPP workbooks. Kept as evidence, not running code. Can be deleted once no longer useful.
-- **Discovered at session close:** CodeIgniter 4 is ALREADY installed in `court-fitness/` (full framework clone, not appstarter; composer install NOT yet run; no `.env` yet; only default `Home::index` route). This reshapes Sprint 01 Session 1's opening task from "install CI4" to "verify + configure existing CI4." Documented as HL-10 and incorporated into Sprint 01 plan §1 + Session 2 prompt task 1. No blocker — just saves a step.
+- The `.ai2` folder name is the owner's choice; if you later rename it, update `CLAUDE.md` §3 + `.ai/README.md` + internal cross-refs across the repo (grep for `\.ai2/` to find them).
+- Admin role: Rajat described it as "Manager of the entire process of who does what." When we scope admin features in a later sprint, think orchestration (who assigns coaches to players, who sets permissions, who sees system-wide reporting), not just CRUD.
+- Inherited carry-overs from Session 1 still valid: trainer→coach vocabulary, slug normalisation during seed, `exercise_type.status` inversion, base64-URL-obfuscation question, tennis-specific testing metrics for Sprint 03+, multi-language for Sprint 02+, PWA install prompt UX, `.ai/research-notes/xlsx-survey/` scripts (safe to delete if workbooks are gone).
+- The PHP JWT library choice: plan to use `firebase/php-jwt` (de-facto standard on PHP 8.2+). If Composer resolution blocks, fall back to `lcobucci/jwt` and document in the handover.
+- The `env` file at repo root is CI4's template; watch for encoding issues when copying to `.env` on Windows (CRLF vs LF).
 
 ## Open Decisions (deferred to later sessions)
 
-- Whether to use Ionic Framework (instead of Bootstrap 5) for the PWA. Sprint 01 uses Bootstrap; Sprint 02 re-evaluates.
-- Whether to seal the SSO service once built. Candidate per `SEALED_FILES.md`.
-- Whether to seal the exercise-taxonomy seed migrations once loaded. Candidate per `SEALED_FILES.md`.
-- Whether the "Training Target" dropdown should be a fixed DB-seeded list or a per-coach customisable list. Sprint 01 goes with a fixed DB-seeded list; owner may override.
+- Ionic Framework vs Bootstrap 5 for the PWA — Sprint 01 stays on Bootstrap 5; Sprint 02 re-evaluates based on how phone-app-like the Bootstrap PWA feels.
+- Seal the SSO service once it's stable + tested (candidate per `.ai/.ai2/SEALED_FILES.md`).
+- Seal the exercise-taxonomy seed migration once loaded (candidate per `.ai/.ai2/SEALED_FILES.md`).
+- Training Target dropdown — Sprint 01 goes with a fixed DB-seeded list (Endurance, Strength, Power, Speed, Agility, Recovery, Mixed); owner may override during Session 3 review.
+- Whether to follow ltat-fitness's base64-URL-obfuscation pattern for plan IDs or use plain CI4 routing. Default: plain CI4.
 
 ## Verification Commands
 
-Sprint 00 has no runnable code, so no verification commands apply yet.
+End-of-Session-2 baseline (what we aim to have green by session close):
 
-When Sprint 01 Session 1 installs CodeIgniter 4 and runs migrations, baseline verification will be:
 ```bash
 cd C:/xampp/htdocs/court-fitness
-php spark serve --port 8080
-php spark migrate
-php spark migrate:status
-curl -I http://localhost:8080/
+php -v                                              # ≥ 8.2
+composer install                                    # exits 0, no deprecation warnings
+ls -la .env                                         # exists locally; NOT committed
+php spark serve --port 8080                         # server starts, serves default page
+vendor/bin/phpunit tests/unit/SsoTest.php           # JWT validation tests pass (all green)
+curl -sI http://localhost:8080/sso                  # returns 400 "missing token" (not 500)
+curl -sI "http://localhost:8080/sso?token=BAD"      # returns 400 "invalid token" (not 500)
+git status                                          # clean working tree at session close
 ```
-Expected: server starts, all migrations applied, HTTP 200 (or 302 to HitCourt login) from the root URL.
+
+If any command fails by session close, the Session 2 handover flags it honestly under "Open Issues / Unfinished Work."

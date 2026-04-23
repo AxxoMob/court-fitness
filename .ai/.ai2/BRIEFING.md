@@ -27,4 +27,4 @@
 
 **Owner:** Rajat Kapoor. Works as Captain (product, scope, priorities); the agent works as Engine Engineer (technical decisions, code). Plain English communication; Rajat is a Vibe-Coder, not a coder.
 
-**Where to go next:** `CLAUDE.md` at repo root for full conventions; `.ai/current-state/WIP.md` for current state; `.ai/sprints/sprint-01/sprint-plan.md` for the upcoming build.
+**Where to go next:** `CLAUDE.md` at repo root for full conventions; `.ai/.ai2/WIP.md` for current state; `.ai/sprints/sprint-01/sprint-plan.md` for the upcoming build.

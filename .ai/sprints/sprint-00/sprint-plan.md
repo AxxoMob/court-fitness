@@ -1,5 +1,9 @@
 # Sprint 00 — Bootstrap & Plan
 
+> ⚠️ **Historical document — paths updated post-Sprint.** This plan was written during Sprint 00 Session 1 (2026-04-22). Rajat reorganised the `.ai/` folder on 2026-04-23 between sessions, moving every Tier 1-3 file out of `briefing/`, `current-state/`, `domain-reference/`, and `institutional-memory/` sub-folders into a flat `.ai/.ai2/` folder. Path references below (like `.ai/briefing/BRIEFING.md`) now resolve to `.ai/.ai2/BRIEFING.md` — same file, new location. See the current `.ai/README.md` for the live folder map. The body of this retrospective is left as-written for historical accuracy.
+
+---
+
 **Status:** CLOSED as of 2026-04-22 (end of Session 1).
 **Duration:** Single session.
 **Goal:** Set up the project's documentation skeleton, understand the predecessor project, align with the owner on Sprint 01 scope, and produce a Sprint 01 plan detailed enough for a new agent to execute without ambiguity.

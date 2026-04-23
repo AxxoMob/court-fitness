@@ -1,5 +1,7 @@
 # court-fitness — Session 2 Kickoff Prompt
 
+> ⚠️ **Historical document — paths updated post-use.** This prompt was written at Sprint 00 Session 1 close (2026-04-22) and delivered to the Session 2 agent on 2026-04-23. Between writing and delivery, Rajat reorganised the `.ai/` folder — the four tier-named sub-folders (`briefing/`, `current-state/`, `domain-reference/`, `institutional-memory/`) were flattened into a single `.ai/.ai2/` folder. Path references in this prompt (e.g. `.ai/briefing/BRIEFING.md`) now resolve to `.ai/.ai2/{same-filename}`. See the current `.ai/README.md` for the live folder map. Preserved as-written because it is a historical artefact of Session 1 close.
+
 > Copy this entire file and paste it as the first message to the Session 2 agent. Customise only the **[bracketed]** lines if needed. Everything else is constant.
 
 ---

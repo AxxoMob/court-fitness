@@ -34,13 +34,13 @@ Project horizon: 3–5 years. Multiple AI agents will work on this project over 
 1. `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` — the operating constitution (read-only; sealed)
 2. `CLAUDE.md` — this file
 3. `.ai/README.md` — folder map of the `.ai/` tree
-4. `.ai/briefing/BRIEFING.md` — 1-page project overview
-5. `.ai/current-state/WIP.md` — current state
-6. `.ai/institutional-memory/SESSION_LOG.md` — at minimum the last 5 sessions; preferably all
-7. `.ai/institutional-memory/HARD_LESSONS.md` — every entry
-8. `.ai/domain-reference/SEALED_FILES.md` — full list
-9. `.ai/institutional-memory/KNOWN_ERRORS.md` — every open KE
-10. `.ai/domain-reference/ltat-fitness-findings.md` — distilled lessons from the predecessor project
+4. `.ai/.ai2/BRIEFING.md` — 1-page project overview
+5. `.ai/.ai2/WIP.md` — current state
+6. `.ai/.ai2/SESSION_LOG.md` — at minimum the last 5 sessions; preferably all
+7. `.ai/.ai2/HARD_LESSONS.md` — every entry
+8. `.ai/.ai2/SEALED_FILES.md` — full list
+9. `.ai/.ai2/KNOWN_ERRORS.md` — every open KE
+10. `.ai/.ai2/ltat-fitness-findings.md` — distilled lessons from the predecessor project
 11. `.ai/sprints/sprint-NN/sprint-plan.md` — current sprint plan (check WIP.md for `NN`)
 12. `.ai/.daily-docs/{DD Mon YYYY}/session_*_handover.md` — the prior session's handover
 13. `.ai/.daily-docs/{DD Mon YYYY}/prompt_for_session_*.md` — YOUR kickoff brief
@@ -135,11 +135,11 @@ See `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` Section 3.
 - If more than one session runs in a single day, the filename's `N` disambiguates.
 
 **Six session-close artifacts** (Framework Section 3.3) still mandatory:
-1. `.ai/current-state/WIP.md` updated
-2. `.ai/institutional-memory/SESSION_LOG.md` appended
+1. `.ai/.ai2/WIP.md` updated
+2. `.ai/.ai2/SESSION_LOG.md` appended
 3. `.ai/.daily-docs/{today}/session_N_handover.md` created
 4. `.ai/.daily-docs/{next session's date}/prompt_for_session_{N+1}.md` created
-5. `.ai/institutional-memory/HARD_LESSONS.md` updated (if anything non-obvious surfaced)
+5. `.ai/.ai2/HARD_LESSONS.md` updated (if anything non-obvious surfaced)
 6. Meaningful git commit(s)
 
 ---
@@ -164,7 +164,7 @@ See `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` Section 3.
 
 ## 8. Sealed Files
 
-See `.ai/domain-reference/SEALED_FILES.md`. As of Sprint 0, only `AI_AGENT_FRAMEWORK.md` is sealed. When the codebase matures and specific files become load-bearing, seal them there.
+See `.ai/.ai2/SEALED_FILES.md`. As of Sprint 0, only `AI_AGENT_FRAMEWORK.md` is sealed. When the codebase matures and specific files become load-bearing, seal them there.
 
 ---
 
@@ -184,9 +184,9 @@ Sprint 0 has no code, so no verification commands apply yet.
 
 ## 10. What this file is NOT
 
-- Not a changelog. That's `.ai/institutional-memory/SESSION_LOG.md`.
-- Not a to-do list. That's `.ai/current-state/WIP.md`.
-- Not a bug tracker. That's `.ai/institutional-memory/KNOWN_ERRORS.md`.
+- Not a changelog. That's `.ai/.ai2/SESSION_LOG.md`.
+- Not a to-do list. That's `.ai/.ai2/WIP.md`.
+- Not a bug tracker. That's `.ai/.ai2/KNOWN_ERRORS.md`.
 - Not session narrative. That's the per-session handover in `.ai/.daily-docs/...`.
 - Not architecture-decision-records. Architectural decisions go in this file (Section 5) when locked, or in the sprint plan when being decided.
 
