@@ -81,13 +81,23 @@ Session 4 likely gets through items 1-4 cleanly; item 5 might span into Session 
 
 ---
 
-## Open Questions for Rajat (ASK at session open if not already addressed)
+## Decisions the Owner Made at Session 3 Close (all 3 open questions resolved)
 
-1. **New-player creation in Coach My Players** — when the coach adds a brand-new player who doesn't yet exist in HitCourt, what's the right behaviour? Options: (a) create a court-fitness-only stub user with a placeholder hitcourt_user_id, (b) forbid adding until the player registers on HitCourt first, (c) send an invite email (needs email infrastructure). My default if no answer: (a) with hitcourt_user_id = -1 (or prefixed "pending:<email>"), to be reconciled when the real user SSOs in.
-2. **URL pattern for plan IDs** — Sprint 01 plan flagged this. Default: plain CI4 (`/coach/plans/42`, `/player/plans/42`). If Rajat wants the ltat_fitness base64-obfuscated style, tell me.
-3. **Bootstrap 5 or pure custom CSS** — Session 3 stayed pure custom. Plan Builder's accordion + bottom-sheet will be more work without a framework. Propose: pull in Bootstrap 5 now (just for components; we keep our CSS variables for branding). Rajat's call.
+1. **New-player creation — SIMPLIFIED.** Per owner 2026-04-23: "The Coach can NOT add any player who is not already registered with HitCourt. That's the basis for everything. Anybody who wishes to do any kind of activity on any of the hitcourt modules must first be registered with HitCourt."
+   - **Implication for Coach My Players:** no "Add Player" form that creates a new user record. Instead, the coach searches for a player who ALREADY exists in court-fitness's local `users` table (i.e. has SSO'd in at least once) and "assigns" them by creating a `coach_player_assignments` row.
+   - **What if the player exists on HitCourt but has not yet SSO'd into court-fitness?** For Session 4 MVP the coach cannot assign them yet — they show up as soon as they log in to court-fitness for the first time. Future enhancement (Sprint 02+): an API call from court-fitness to HitCourt to pre-fetch users who've registered but not yet logged in, OR a HitCourt webhook on registration that pre-populates our `users` table. Flag this to Rajat in the Session 4 handover as a known limitation.
+   - **What court-fitness never does:** create a new `users` row from scratch. Identity always originates on HitCourt.
 
-Each has a default if you don't answer before I start coding.
+2. **URL pattern — base64 obfuscation.** Per owner: follow ltat-fitness pattern. URLs look like `/coach/plans/MCMjlzA=` instead of `/coach/plans/42`.
+   - **Implementation:** a small helper class (say `App\Support\IdObfuscator`) with `encode(int): string` and `decode(string): ?int`. Use URL-safe base64 of `"cf:<id>"`; `decode` validates the `cf:` prefix so a garbage string returns null. This is URL opacity (not cryptographic security) — matches ltat-fitness's approach.
+   - All routes that accept a plan/assignment/etc. ID go through the helper: `/coach/plans/(:segment)` → controller decodes, loads by int ID, 404s if decode fails.
+   - For Session 4 scope: apply to plan IDs in coach + player URLs. Other IDs can remain plain integers until they hit user-visible URLs.
+
+3. **Bootstrap 5 — yes, pull it in.** Per owner: "Please build in BootStrap 5, small css customizations can be handled by the Developers team."
+   - **Implementation:** add Bootstrap 5 CSS + JS bundle via CDN links in `app/Views/layouts/main.php`. Keep the existing `public/assets/css/court-fitness.css` for brand overrides — CSS custom properties (`--cf-primary`, etc.) continue to drive orange branding on top of Bootstrap's defaults.
+   - Use Bootstrap components where they save work: accordion (Plan Builder day-by-day), modals (bottom-sheet drilldown on mobile, dialog on desktop), forms, navbar.
+   - Don't rip out the cf-prefixed CSS — it has the orange branding dialled in; just let Bootstrap handle structure.
+   - Consider pulling via Composer (`composer require twbs/bootstrap`) for offline reliability in Sprint 02; CDN is fine for Session 4.
 
 ---
 
