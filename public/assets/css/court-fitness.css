@@ -1,10 +1,23 @@
 /* =============================================================================
-   court-fitness — base stylesheet (Sprint 01 Session 3)
-   Mobile-first, Bootstrap 5 will layer on top in Session 4+.
-   Brand: #F26522 orange (confirmed 2026-04-23).
+   court-fitness — base stylesheet
+   Mobile-first · Bootstrap 5 loaded via CDN in layouts/main.php · brand #F26522
+   Font stack matches Falcon v2.8.2 (Poppins 16.8px) for HitCourt-family cohesion
    ============================================================================= */
 
 :root {
+    /* Falcon-matched typography (CLAUDE.md §5.4) — Poppins stack, 16.8px base */
+    --cf-font-family: Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --cf-font-size-base: 16.8px;
+
+    /* Bootstrap 5 variable overrides — prevent BS defaults bleeding through */
+    --bs-body-font-family: var(--cf-font-family);
+    --bs-body-font-size: var(--cf-font-size-base);
+    --bs-body-color: #1C1B1A;
+    --bs-primary: #F26522;
+    --bs-primary-rgb: 242, 101, 34;
+    --bs-link-color: #C9531A;
+    --bs-link-hover-color: #F26522;
+
     /* Brand */
     --cf-primary:         #F26522;
     --cf-primary-dark:    #C9531A;
@@ -52,8 +65,8 @@ html, body {
     padding: 0;
     background: var(--cf-bg);
     color: var(--cf-ink);
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 16px;
+    font-family: var(--cf-font-family);
+    font-size: var(--cf-font-size-base);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
