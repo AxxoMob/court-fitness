@@ -54,30 +54,45 @@ Demo-ready URLs:
 
 ---
 
-## What Needs To Be Done Now (Session 4, Sprint 01 Session 3)
+## What Needs To Be Done Now (Session 4 — "Plan Builder, visible")
 
-In priority order:
+> **⚠️ Priority signal from owner at Session 3 close (2026-04-23):** "The layouts are looking decent for the moment, however the part which everybody would be really interested in, would be the part where the Coach adds a training session for the players — of which I had given screenshots. Both the Web and Mobile versions are eagerly awaited by the stakeholders."
+>
+> **Translation:** the Plan Builder is THE deliverable. Everything else in Session 4 is plumbing around it. If you have to cut something, cut AuthFilter or Player Plan Detail — never cut Plan Builder.
 
-1. **AuthFilter.** New class `app/Filters/AuthFilter.php`. Checks `session('is_authenticated')`; if missing, 302 to `${HITCOURT_BASE_URL}/login?return=<requested_path>` (env var already set). Register in `Config/Filters.php` with `$globals` pre-filter, EXEMPT these routes: `/`, `/sso`, and in dev also `/dev` + `/dev/sso-stub`. Write at least 1 unit test (a request without session cookie returns 302 to HitCourt).
+### Session 4 priority order (re-ranked per owner's signal)
 
-2. **Player Plan Detail screen.** Route `GET /player/plans/{id}` — new controller `Player\Plans::show($planId)`. Loads the plan + its entries joined with fitness_subcategories names, groups by date → session_period. Mobile-first view: each day is a section, each session period is a sub-section, each exercise is a card showing type/category/subcategory + `target_json` nicely formatted + "Log actuals" button (leads to Session 5's Log Actuals screen).
+1. **Pre-work: Bootstrap 5 + IdObfuscator.** These unlock the Plan Builder. ~1.5 hours combined.
+   - Add Bootstrap 5 (CSS + JS bundle) via CDN in `app/Views/layouts/main.php`. Keep the existing `public/assets/css/court-fitness.css` — `--cf-primary` etc. still drive brand; Bootstrap handles structure.
+   - Add `app/Support/IdObfuscator.php` with `encode(int): string` + `decode(string): ?int` using URL-safe base64 of `"cf:<id>"` (with `cf:` prefix so garbage strings return null). Write a unit test. All plan-ID-bearing routes use this helper.
 
-3. **Coach My Players screen.** Route `GET /coach/players` → `Coach\Players::index`. Shows all players assigned to the logged-in coach (JOIN coach_player_assignments + users). Search-by-first-3-letters (client-side JS or server-side). "Add Player" button — leads to an inline form OR a modal — lets the coach register a new player with email/first_name/family_name. NB: this creates a court-fitness local `users` row with an arbitrary `hitcourt_user_id` (negative or prefixed) until the player actually SSOs in later — design decision you make.
+2. **Coach Plan Builder — THE screen.** Full happy path for creating a fresh plan. Routes `GET /coach/plans/new` (renders the form) + `POST /coach/plans` (persists).
+   - Top form fields (Bootstrap 5 form group): player (`<select>` from the coach's assigned players, empty state if none), week_of (date input that only accepts Mondays — client-side + server-side validation), training_target (combobox pattern: Bootstrap dropdown of 7 seeded suggestions + an "Add More" option that reveals a `<input maxlength="100">`), weight_unit (radio kg/lb).
+   - Day-by-day Bootstrap accordion — 7 days of the selected week. Each day collapses to show its session cards.
+   - Per-day, three session cards: morning / afternoon / evening. Each card has a list of exercises + "+ Add exercise" button.
+   - Add-exercise opens a Bootstrap modal (on mobile it should feel like a bottom sheet — use `.modal-dialog-scrollable` + custom CSS for phone) with the 3-level drilldown: pick exercise_type (Cardio/Weights/Agility) → reveal fitness_category dropdown → reveal fitness_subcategory dropdown. After the subcategory is picked, the modal expands to show type-specific target fields (Cardio = max_hr_pct + duration_min; Weights = sets + reps + weight + rest_sec; Agility = reps + rest_sec). "Add" stores the entry in a hidden JSON buffer on the form.
+   - Save button (sticky bottom on mobile) POSTs the whole plan + entries. CSRF token (CI4 built-in). Server-side: validate week_of is a Monday; create training_plans row + plan_entries rows in a transaction; redirect to the plan's obfuscated URL.
+   - **Web and mobile layouts both must work.** Bootstrap's responsive grid does most of this; test at 375px and 1280px widths in DevTools.
 
-4. **Coach My Plans screen.** Route `GET /coach/plans` → `Coach\Plans::index`. Filter chips: Weekof, Player. List of plan cards, FAB for "New Plan."
+3. **Coach My Plans.** List view the coach sees at `/coach/plans`. Cards with player name, week_of, training_target chip, entry count. FAB "New Plan" → Plan Builder. Filter chips (Weekof, Player) client-side.
 
-5. **Coach Plan Builder — the hard mobile screen.** Route `GET /coach/plans/new` (or `/coach/plans/{id}/edit` for existing). This is where you earn your pay:
-   - Top form: player (dropdown from assigned list), week_of (Monday picker), training target (combobox: dropdown of 7 suggestions + "Add More" that opens a 100-char text input), weight unit (kg/lb).
-   - Per-day accordion: Mon, Tue, Wed, Thu, Fri, Sat, Sun. Tap to expand.
-   - Inside each day: three tabs or cards for morning / afternoon / evening.
-   - Inside each session: list of added exercises + "Add exercise" button that opens a bottom-sheet with the 3-level drilldown (exercise_type → fitness_category → fitness_subcategory).
-   - For each exercise added: fields matching exercise_type (Cardio = max_hr_pct, duration_min; Weights = sets, reps, weight, rest_sec; Agility = reps + rest_sec). Store in `target_json`.
-   - Save button persists the full plan + entries.
-   - Form validation: week_of must be a Monday (server-side check); training_target length 1-100.
+4. **Coach My Players.** Simpler than I originally scoped: NO "Add Player" form (owner confirmed — see §Decisions below). Just a list of players currently assigned to this coach (`coach_player_assignments` JOIN `users`). Search field that filters the visible list by first-letters match. Future: Sprint 02+ adds an API-backed search to find HitCourt players who haven't yet SSO'd into court-fitness.
 
-6. **Stretch — if time:** Player Log Actuals screen, PWA manifest, simple session-cookie-backed "remember me."
+5. **Player Plan Detail (read-only).** Route `GET /player/plans/{obfuscated_id}`. Shows the plan's entries grouped by day + session. Same CSS card pattern as Plan Builder — reuse the template partial. Tap-to-log-actuals button on each entry (lands on a Session 5 placeholder until that session builds the Log Actuals modal).
 
-Session 4 likely gets through items 1-4 cleanly; item 5 might span into Session 5.
+6. **AuthFilter.** Bumped to the END because the dev stub SSO is the entry point — nothing actually needs AuthFilter to work for demo. Still should land in Session 4 if time. `app/Filters/AuthFilter.php` checks `session('is_authenticated')`; if missing, 302 to `${HITCOURT_BASE_URL}/login?return=<path>`. Register globally; exempt `/`, `/sso`, `/dev`, `/dev/sso-stub`. Add a unit test.
+
+### Session 4 WILL NOT do (deferred to Session 5)
+
+- POST actuals to `plan_entries.actual_json` (the "log actuals" modal contents).
+- Coach-sees-player's-actuals refresh view.
+- PWA manifest + service worker.
+- Plan Builder EDIT mode (loading an existing plan for modification). Session 5 adds this once the Session 4 create flow is proven.
+- Empty-state UX polish, icons, and micro-interactions. Developers team can refine.
+
+### Realistic session shape
+
+Session 4 is ambitious. Honest expectation: items 1-3 land complete; items 4-5 land functional-but-rough; item 6 likely slips to Session 5. That's still a demo-able Plan Builder + visible Coach-side UI for stakeholders, which is what the owner is asking for.
 
 ---
 
