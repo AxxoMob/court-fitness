@@ -29,19 +29,15 @@ Project horizon: 3–5 years. Multiple AI agents will work on this project over 
 
 ## 3. On Startup — Mandatory Reading Order
 
-The reading obligation depends on whether you are entering a **fresh conversation** (blank chat history — the default case) or **continuing the same conversation** after a session close.
-
-### 3.1 Fresh agent (new conversation — default)
-
-A fresh Claude conversation has no memory of prior work. Read these IN ORDER, every session, before any tool call that modifies state:
+**Every agent, every session, before any tool call that modifies state — no exceptions, no shortcuts, no "I already know this from last session."** Read these IN ORDER:
 
 1. `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` — the operating constitution (read-only; sealed)
 2. `CLAUDE.md` — this file
 3. `.ai/README.md` — folder map of the `.ai/` tree
-4. `.ai/core/BRIEFING.md` — 1-page project overview
+4. `.ai/core/BRIEFING.md` — 1-page project overview. **Read every line; quote key lines in your Conformance Check.** Session 5 skimmed past line 10 ("both coach AND player record actuals") and a day of UI had to be rebuilt (HL-13).
 5. `.ai/core/WIP.md` — current state
 6. `.ai/core/SESSION_LOG.md` — at minimum the last 5 sessions; preferably all
-7. `.ai/core/HARD_LESSONS.md` — every entry
+7. `.ai/core/HARD_LESSONS.md` — every entry, top to bottom
 8. `.ai/core/SEALED_FILES.md` — full list
 9. `.ai/core/KNOWN_ERRORS.md` — every open KE
 10. `.ai/core/ltat-fitness-findings.md` — distilled lessons from the predecessor project
@@ -49,20 +45,9 @@ A fresh Claude conversation has no memory of prior work. Read these IN ORDER, ev
 12. `.ai/.daily-docs/{DD Mon YYYY}/session_*_handover.md` — the prior session's handover
 13. `.ai/.daily-docs/{DD Mon YYYY}/prompt_for_session_*.md` — YOUR kickoff brief
 
-### 3.2 Returning agent (same conversation after a session close)
+**Do not split or abbreviate this list.** Session 4 (2026-04-23) briefly introduced a "fresh agent (full read)" vs "returning agent (4-item re-entry check)" split. The owner reverted it after one bad experience — a returning-claimed agent skipped reading and made judgement errors. The cost of re-reading the full list every session is 15 minutes; the cost of ONE skimmer is a whole rebuild (see HL-13, HL-14). If a future agent proposes a similar shortcut, read this paragraph and then don't do it.
 
-If the same continuous Claude conversation is starting a new session (a previous close already happened in-thread), the constitutional docs are already in working memory. A lighter **re-entry check** suffices — but you MUST still do the full filesystem pre-flight (HL-10) to catch any owner changes between sessions:
-
-1. Run `git status` + `git log --oneline -5` + `ls -la .ai/` in bash — what changed since the last close?
-2. Re-read `.ai/core/WIP.md` — the owner may have edited it between sessions.
-3. Re-read the previous session's handover at `.ai/.daily-docs/{latest date}/session_*_handover.md` — owner may have appended a note.
-4. SCAN `.ai/core/HARD_LESSONS.md` only for entries newer than your last read.
-
-**Fresh-vs-returning test:** if this is a NEW Claude conversation (no prior chat history visible to you), you are a fresh agent → §3.1 applies. If the SAME conversation had a prior session close, you are a returning agent → §3.2 is acceptable.
-
-**Temptation warning:** an agent in a long conversation may falsely claim "returning" status to skip the full read. Enforcement: the Conformance Check (§3.3) asks specific questions whose answers only come from actual reading. A skimmer who claims returning status will fail questions about HL content or sealed-file details.
-
-### 3.3 Framework Conformance Check — commit it, don't just chat it
+### 3.1 Framework Conformance Check — commit it, don't just chat it
 
 After reading, complete the Framework Conformance Check (Appendix D of AI_AGENT_FRAMEWORK.md) BEFORE any state-changing tool call. **Two steps, not one:**
 
@@ -73,7 +58,7 @@ Why commit it: chat history is transient. If the conversation ends, the Check an
 
 Only after the commit does the agent request owner "proceed."
 
-### 3.4 Reference material (read when relevant)
+### 3.2 Reference material (read when relevant)
 
 - `C:\xampp\htdocs\ltat-fitness-module\docs\*.md` — predecessor project's docs
 - `C:\xampp\htdocs\ltat-fitness-module\Database\ltat_fitness.sql` — authoritative source schema (13,398 lines; don't read whole; grep)

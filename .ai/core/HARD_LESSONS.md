@@ -6,6 +6,16 @@ The lessons below are inherited from reading the predecessor project `ltat-fitne
 
 ---
 
+## HL-14 — Do not split the mandatory reading list. Full read every session is cheaper than one skimmer.
+
+**Discovered:** Session 6 start, 2026-04-24 (owner reverted a Session 4 architectural change after the first real-world failure)
+**Summary:** In Session 4 (2026-04-23, commit `30fb22b`) the agent proposed splitting `CLAUDE.md §3`'s mandatory reading list into "fresh agent" (full 13-item read) vs "returning agent" (4-item re-entry check), reasoning that a continuous conversation's agent already had the docs in working memory. Owner approved. First real-world test went badly — a fresh-conversation agent experienced the split as permission to skim, the session quality dropped materially, and the owner had to intervene. Owner reverted to a single mandatory list for every session regardless of conversation state.
+**Why it matters:** The framework's ~15-minute per-session reading tax is paid to prevent ONE bad session. Any shortcut that saves 5 minutes but allows even occasional skimming costs MORE than it saves over a 3-5 year horizon. This generalises: **do not re-propose "agent that's already warmed up" optimisations.** The reading ritual is cheap; the skimmer is expensive (see HL-13 — Session 5's skimming past BRIEFING.md line 10 cost a full day of UI rebuild).
+**Where it lives in code:** `CLAUDE.md §3` — the split is collapsed back to a single flat list with an explicit "do not re-introduce" paragraph appended. The §3.1 Conformance-Check-must-be-committed rule stays — that part proved sound.
+**Cross-refs:** HL-13 (the canonical "skimming costs a rebuild" example); Session 4 close commit `30fb22b` (introduced the split); this revert commit removes it.
+
+---
+
 ## HL-1 — ltat-fitness had two competing migrations folders and Task 21 had to bypass them
 
 **Discovered:** Sprint 0 Session 1, 2026-04-22 (while reading ltat-fitness)
