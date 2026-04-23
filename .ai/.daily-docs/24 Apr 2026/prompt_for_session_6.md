@@ -1,119 +1,122 @@
-# court-fitness — Session 6 Kickoff Prompt (REBUILD)
+## Session Onboarding — court-fitness (Session 6, Sprint 01 Session 5)
 
-> **Paste this entire file as the first message to the Session 6 agent in a FRESH Claude conversation.**
-> The §3.2 re-entry path does NOT apply. You are a new Claude with a blank whiteboard.
->
-> **Session 5 built the wrong UI. Session 6 rebuilds it correctly.** Do not defend or preserve what Session 5 shipped in the views; the backend is fine but the Plan Builder view and JS are getting replaced with an inline grid.
+You are picking up work on **court-fitness** — a mobile-first PWA for tennis coaches to plan weekly training for their players, with both sides logging actual session results. It lives at C:\xampp\htdocs\court-fitness on Windows 11 XAMPP. Production URL: https://fitness.hitcourt.com.
 
----
+This is a long-horizon project under a strict AI Agent Framework. Before you do ANYTHING, read these docs **in order**:
 
-## Session Onboarding — court-fitness (Session 6, Sprint 01 Session 5 — "Rebuild: inline grid + actuals for both parties")
+1. .ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md — operating constitution. Sealed. Read-only.
+2. CLAUDE.md (repo root) — project-specific conventions. §3 (reading protocol), §5 (architecture), §6 (session lifecycle) especially.
+3. .ai/README.md — folder map. Note: `.ai/.ai2/` was renamed to `.ai/core/` in Session 4; any old path references you encounter need that substitution.
+4. .ai/core/BRIEFING.md — 1-page project overview. **Quote line 10 verbatim in your Conformance Check.** Session 5 skimmed past it — the sentence that says both coach AND player record actuals — and the entire UI had to be rebuilt. Do NOT repeat this failure.
+5. .ai/core/WIP.md — current state. The "Current Status" section explicitly notes Session 5's UI is being rebuilt in Session 6.
+6. .ai/core/SESSION_LOG.md — project diary (5 rows now).
+7. .ai/core/HARD_LESSONS.md — thirteen entries (HL-1..HL-13). Read all. HL-13 was added at Session 5 close because the prior agent (me) skimmed past BRIEFING.md and shipped the wrong UI. Read HL-13 twice.
+8. .ai/core/SEALED_FILES.md — one sealed file (the framework itself).
+9. .ai/core/KNOWN_ERRORS.md (still empty, template only).
+10. .ai/core/ltat-fitness-findings.md — predecessor-project findings, especially §2 (the live coach workflow).
+11. .ai/core/plan_builder_ux.md — **your primary UX reference. LOCKED by owner 2026-04-23. Read TWICE.** Transcribes the live LTAT screen, captures the owner's verbatim design answers (a) through (d), and lists every Session 5 file being rebuilt with its correct replacement. Any deviation from this doc = rebuilding the UI for a third time.
+12. .ai/sprints/sprint-01/sprint-plan.md — the sprint playbook. §3 schema is implemented; §5 UI screens is now superseded by plan_builder_ux.md for layout detail.
+13. .ai/.daily-docs/23 Apr 2026/session_5_handover.md — what Session 5 shipped, what it got right, what it got wrong, and what is preserved intact for Session 6.
 
-You are picking up work on **court-fitness** — a mobile-first PWA for tennis coaches to plan weekly training for their players, with both sides logging actual session results. It lives at `C:\xampp\htdocs\court-fitness` on Windows 11 XAMPP. Production URL: `https://fitness.hitcourt.com`.
-
-You are a **FRESH AGENT** in a new conversation. Follow the full reading list in `CLAUDE.md §3.1` (13 items). Then commit your Conformance Check to `.ai/.daily-docs/{today}/session_6_conformance.md` per CLAUDE.md §3.3 BEFORE requesting owner "proceed."
-
-### 14th mandatory read, Session 6 only
-
-After the §3.1 13 items, you MUST also read `.ai/core/plan_builder_ux.md` — this is the **canonical LOCKED UX** for every screen you are about to build or rebuild. It was written at Session 5 close after the owner had to re-explain design decisions multiple times. If you skip it, you will build the wrong thing again and the owner will escalate. The file transcribes the live LTAT screen, captures owner's verbatim answers from the 2026-04-23 feedback session, and lists every file Session 5 got wrong with its correct replacement.
-
-### Additionally required before any code
-
-In your Conformance Check, **quote verbatim** from:
-- `.ai/core/BRIEFING.md` — the sentences about what coach does and what player does (one of those sentences says both can record actuals; if you can't find it, reread)
-- `.ai/core/ltat-fitness-findings.md §2` — the step-by-step live workflow description
-- `.ai/core/plan_builder_ux.md §2` — owner's locked answers (a), (b), (c), (d)
-
-Paraphrasing is not acceptable. Quote, cite line numbers, prove you read each line. The Conformance Check's 8 questions were updated after Session 5 to catch the skimmer failure that caused this rebuild — see HL-13.
+After reading, DO NOT touch code yet. Run the **Framework Conformance Check** (Appendix D of AI_AGENT_FRAMEWORK.md) in chat AND commit it to .ai/.daily-docs/{today}/session_6_conformance.md per CLAUDE.md §3.3 before requesting "proceed." Your Conformance Check MUST quote BRIEFING.md line 10 verbatim, cite plan_builder_ux.md §2 answers (a) through (d) verbatim, and explicitly list the four view files being rebuilt. Paraphrasing will be rejected — see HL-13.
 
 ---
 
-## What Session 5 shipped — what is correct and what is wrong
+## Context
 
-### Correct (DO NOT TOUCH)
+Sprint 01 Session 5 (last session) shipped a **working backend** — DB migrated + seeded, SSO + AuthFilter + CSRF live, Plan Builder controller + persist + obfuscated URLs, plan-show views rendering — but built the **wrong UI**. The Plan Builder was modal-driven mobile-first; the owner's canonical layout (per his live LTAT system) is a wide inline grid for desktop/tablet/iPad with responsive collapse to mobile. Root cause: screenshots shared with the Session 1 agent in chat were never saved to the repo, and a fresh Session 5 agent reinvented the UI from lossy prose. Fix recorded in HL-13. Canonical UX locked in .ai/core/plan_builder_ux.md. Session 6 rebuilds the views; the backend is untouched.
 
-- Backend models: `App\Models\TrainingPlansModel`, `App\Models\PlanEntriesModel`. Keep.
-- Backend controllers: `App\Controllers\Coach\Plans::{index, new, store, show}`, `App\Controllers\Coach\Players::index`, `App\Controllers\Player\Plans::show`, `App\Controllers\Coach\Dashboard`, `App\Controllers\Player\Dashboard`. Keep structure; the show methods will gain a POST sibling.
-- Routes: keep the existing route groups; add `POST /coach/plans/{obf}` and `POST /player/plans/{obf}` for in-place actuals/target updates.
-- `App\Filters\AuthFilter` + global registration. Keep.
-- `App\Support\IdObfuscator` + 9 tests. Keep.
-- CSRF enablement (commit `0303225`). Keep. HL-12 still stands.
-- Database schema (migrations). Keep. No new migrations expected.
-- Exercise taxonomy seeded data. Keep.
-- `public/assets/css/court-fitness.css` — keep the brand + Falcon font variables. Grid styles will be augmented, not replaced.
-- `app/Views/layouts/main.php` — keep.
-- `.env`, composer.json, phpunit.xml.dist — keep.
-
-### Wrong (REBUILD IN THIS ORDER)
-
-1. **`app/Views/coach/plans/new.php`** — Bootstrap accordion + per-exercise modal. Delete; replace with the inline grid transcribed in `.ai/core/plan_builder_ux.md §1`.
-2. **`public/assets/js/plan-builder.js`** — modal state machine. Delete most of it; replace with inline-row behaviour: sub-category dropdown change re-renders the row's value-cell strip (Cardio cells vs Weights cells vs Agility cells — see §2.4 of the UX doc).
-3. **`app/Views/coach/plans/show.php`** — read-only badge list. Replace with the **same editable grid template** as `new.php`. Target cells locked (readonly attr), Actual cells editable.
-4. **`app/Views/player/plans/show.php`** — read-only badge list. Replace with the same editable grid template. Target cells locked, Actual cells editable, server-side ownership check enforces player owns this plan.
-5. **Redirect target after `POST /coach/plans` store** — currently lands on read-only show page. Switch so it lands on the editable grid with targets filled and actuals empty-ready-to-type.
-6. **Plan-list card widths** — currently narrow, phablet-first. Make them span the page on desktop (3 columns at >=992px, 2 at 768-991px, 1 stacked at <768px). Same for Player Dashboard plan cards.
-
-### New routes required
-
-- **`POST /coach/plans/{obf}`** — update plan (may edit targets and actuals together). CSRF-protected. `actual_by_user_id` = coach's user id when actuals cells are non-empty.
-- **`POST /player/plans/{obf}`** — update plan (actuals only). CSRF-protected. Server IGNORES any target edits posted by a player. `actual_by_user_id` = player's user id.
+**Tech stack (summary):** PHP 8.2.12 / CodeIgniter 4.7.2 / MySQL 8.0+ / Bootstrap 5.3.3 loaded via CDN / Poppins 16.8px Falcon font stack. Brand: #F26522 orange. CSRF enabled globally. AuthFilter gates all routes except /, /sso, /dev, /dev/sso-stub. Full detail: CLAUDE.md §7.
 
 ---
 
-## Session 6 priority order
+## What Was Done Last Session (Session 5, 2026-04-23)
 
-1. **Read `.ai/core/plan_builder_ux.md` end-to-end** before touching any code. If something is ambiguous, ask the owner. Do NOT guess.
-2. **Rebuild the Plan Builder view as an inline grid** — the wide desktop/tablet/iPad layout matching the LTAT screenshot. Keep the Session 5 controller (`Coach\Plans::new`) and its form action (`POST /coach/plans`). Rewrite the view file and the JS. The form fields it submits should stay backwards compatible: `player_user_id`, `week_of`, `training_target`, `training_target_custom`, `weight_unit`, `notes`, `entries_json`.
-3. **Rebuild Coach show + Player show as editable grid** — one shared partial if possible (`app/Views/coach/plans/_grid.php` or similar); both coach and player views extend it with different locked/editable column rules.
-4. **Add POST /coach/plans/{obf} and POST /player/plans/{obf}** routes + controller methods. Each loads the plan, ownership-checks, applies the posted target/actual deltas, saves. `actual_by_user_id` stamped. `actual_at` stamped.
-5. **Responsive breakpoints** — CSS only, single template. Desktop grid, tablet grid, mobile stacked-card. Use Bootstrap's grid `.col-*` classes where sensible.
-6. **Redirect-after-save fix** — `POST /coach/plans` store action now redirects to `GET /coach/plans/{obf}` which is the editable grid. Flash notice "Plan saved. You can now type actuals here."
-7. **End-to-end smoke test** — create a plan, type actuals as coach, refresh as player, verify same data visible; type actuals as player, refresh as coach, verify same data + audit trail.
-8. **Seal-candidates pass** (if Session 6 closes Sprint 01) — per CLAUDE.md §12.
+1. Bootstrap 5.3.3 loaded via CDN in app/Views/layouts/main.php; Falcon-exact font stack wired into court-fitness.css with --bs-body-* + --bs-primary overrides (commit ea3f40a).
+2. App\Support\IdObfuscator (URL-safe base64 of "cf:<id>") + 9 unit tests — handles garbage, empty, prefix-missing, id=0, plain-integer inputs (commit ea3f40a).
+3. Models TrainingPlansModel + PlanEntriesModel; controller Coach\Plans::{index, new, store, show}; route group; transactional save; obfuscated-URL redirect (commit 0303225) — **backend correct, view wrong (rebuild in Session 6).**
+4. Coach\Players::index — assigned-players list-only, no add-player form (per owner: HitCourt is the sole identity source) (commit 0303225).
+5. Player\Plans::show — read-only badge view (commit 0303225) — **rebuild as editable grid in Session 6.**
+6. App\Filters\AuthFilter + global registration; 302s unauthenticated → ${HITCOURT_BASE_URL}/login?return=<path>; 2 unit tests; except list /, sso, dev, dev/sso-stub (commit d153c9a).
+7. CSRF protection enabled globally (CI4 ships it commented out — captured as HL-12) (commit 0303225).
+8. End-to-end smoke verified: /dev/sso-stub?as=coach → build a plan → redirect to /coach/plans/Y2Y6NQ → "Plan saved" flash. Backend pipeline is correct.
+9. Post-close UX correction (commit ab05ea5): plan_builder_ux.md locked, HL-13 added, .ai/research-notes/screenshots/ folder created with README, Session 6 prompt rewritten as this rebuild brief.
 
-### Session 6 WILL NOT do
+Test suite at Session 5 close: **23/23 passing, 48 assertions** (10 JwtValidator + 9 IdObfuscator + 2 HealthTest + 2 AuthFilter).
 
-- Any new migrations or schema changes.
-- Actuals-logging OUTSIDE the inline grid (no modal, no separate log-actuals URL).
-- Any change to the 3+12+204 catalogue seed.
-- Plan EDIT mode as a separate URL — the show URL IS the editable grid.
-- PWA manifest + service worker — slip to Session 7 unless Session 6 finishes ahead.
-- Rich analytics, charts, progression views — Sprint 02+.
+Demo-ready URLs (will continue to work through the rebuild — only the view templates change):
+- /dev — stub SSO landing
+- /dev/sso-stub?as=coach — log in as Rajat (coach)
+- /dev/sso-stub?as=player — log in as Rohan (player)
+- /coach, /coach/plans, /coach/players, /coach/plans/new
+- /player, /player/plans/Y2Y6MQ
 
 ---
 
-## Owner's locked answers — reproduce these verbatim in your Conformance Check
+## What Needs To Be Done Now (Session 6 — "Rebuild: inline grid + actuals for both parties")
 
-From `.ai/core/plan_builder_ux.md §2`, Session 5 owner feedback:
+> **⚠️ Owner directive at Session 5 close (2026-04-23):** the Plan Builder is NOT a mobile-first modal flow; it is a wide inline grid where the coach (on laptop or iPad in the gym while the player exercises) types target AND actual values directly in row cells. After save the coach must land on the SAME editable grid, ready to punch actuals. Both coach AND player can edit actuals from their own logins. See plan_builder_ux.md for the full locked spec. If anything in your implementation deviates, you are rebuilding for a third time and the owner will not be pleased.
 
-**(a) Canonical target/actual shape:** "These are the values that the Coach or Player must insert, to confirm that the exercise was followed. For the sake of ease, and usage, we kept it in one row. One row because a player would finish that particular exercise Aerobic Cardio (Recovery Run), fill in the details, and only then move on to Anaerobic Alactic (Pro Agility 5 10 5 5 Repeats). Same pattern to be followed for evening session."
+### Session 6 priority order
 
-**(b) Responsive behaviour:** "You may wish to make your cards width larger across the page. Right now they are very short in width. Yes you may simplify when the user switches to mobile view, but that needs to be dynamic. We can not have the same view for laptop & pad, and mobile too. Right now it seems that everything is about mobile view, which is important, but it has to be handled dynamically."
+**Pre-work before writing any code: re-read .ai/core/plan_builder_ux.md §1 (LTAT screen transcription) and §2 (owner's verbatim answers a through d). This is the rebuild spec. If the doc does not answer a layout question, STOP and ask the owner — do NOT guess.**
 
-**(c) Who edits actuals — BOTH:** "Both of course. It has been told by me multiple times in the previous conversation with Claude Agent. This is repetitive. Isnt this mentioned in the documentation anywhere? Very basic thing to miss. When the player and coach are working together, the coach or player may fill the exercises up from their logins. If the player is travelling without the coach, he logs into his account, goes to his exercise plan and saves the values. The Coach can then see the values when he logs into his zone back home. It works both ways."
+1. **Rebuild the Plan Builder view as an inline grid.** Rewrite `app/Views/coach/plans/new.php` + `public/assets/js/plan-builder.js` per plan_builder_ux.md §1 (the LTAT screen layout) and §4.2 (the "wrong → replace with" table). Wide inline grid at desktop/tablet/iPad; collapses to stacked-card-per-exercise at <768px via CSS. No modal. One row per exercise with: [+] add-row button | category label | sub-category dropdown | type-specific numeric input cells | [-] remove-row button. Sub-category change re-renders the row's cell strip (Cardio ≠ Weights ≠ Agility — plan_builder_ux.md §2.4). Keep the existing controller's POST form field names backwards compatible (entries_json + fundamentals).
 
-**(d) Per-exercise column set:** "Please refer to the database. It is all following a pattern. The row and boxes adjust according to the max value that that particular exercise needs the value for. For exp (Refer to screenshot) Cardio, Weights and Agility, all have different amount of boxes. They come added automatically as per the exercise selected."
+2. **Rebuild Coach + Player show views as editable grids.** Same HTML partial as #1 (extract to app/Views/coach/plans/_grid.php or similar; mount on both Coach\Plans::show and Player\Plans::show). Coach (`/coach/plans/{obf}`): targets AND actuals editable, so coach can adjust targets on the fly during a training session. Player (`/player/plans/{obf}`): targets locked (readonly attr + server-side ignore), actuals editable. Server-side ownership check stays on both — never trust the client. On save, `plan_entries.actual_by_user_id` + `actual_at` get stamped with whoever saved (plan_builder_ux.md §3.3).
 
-**These answers are NON-NEGOTIABLE.** If your design deviates from them, you are rebuilding for a third time. Session 5 was rebuilt once already — cost a day of owner time.
+3. **Add POST routes for in-place update.** `POST /coach/plans/{obf}` updates targets + actuals. `POST /player/plans/{obf}` updates actuals only (any target field in the POST is silently ignored server-side — do not 400, just drop). Both CSRF-protected via the global filter, AuthFilter-gated, role-checked. **If an entry already has non-null `actual_json` and the coach re-saves, preserve the actuals** — do NOT clobber. Test this case explicitly; write a unit test for the no-clobber guarantee.
+
+4. **Redirect-after-save fix.** `POST /coach/plans` (Session 5's store action — don't rename) now redirects to `GET /coach/plans/{obf}` which IS the editable grid. Flash notice: "Plan saved. You can now type actuals here." This kills the "where do I insert the values?" dead-end the owner hit in Session 5.
+
+5. **Responsive widths across all plan screens.** Single HTML payload, CSS-driven, NO device-sniffing, NO two templates. Plan cards on /coach/plans + /player: 3 across at ≥992px, 2 at 768-991px, 1 stacked at <768px. Plan Builder + show grids: wide table on desktop, stacked per-exercise cards on mobile. Use Bootstrap's .col-lg-* / .col-md-* grid classes where sensible. Plan_builder_ux.md §2.2 is the owner's exact words.
+
+6. **Audit display on show views.** Each logged actual renders "Logged by Coach Rajat · 2m ago" or "Logged by Rohan · 2m ago" using `plan_entries.actual_by_user_id` JOIN users + `actual_at` timestamp. Simple `<small class="text-muted">` under the actual cells. Plan_builder_ux.md §3.3.
+
+### Session 6 WILL NOT do (deferred to Session 7)
+
+- PWA manifest + service worker.
+- Per-type server-side validation of target_json / actual_json shapes (trust the UI for one more session; harden later).
+- Prettier target-badge labels (`HR 75%` vs `max_hr_pct: 75`) beyond what the inline grid shows natively.
+- Plan Builder "Edit mode" as a separate URL — the show URL IS the editable grid now; there is no separate edit URL.
+- Any new migrations, schema changes, or catalogue updates.
+- Rich analytics, charts, progression views.
+- Sprint-close chores (seal proposals + archival) unless Session 6 actually closes Sprint 01, in which case yes — per CLAUDE.md §11 + §12.
+
+### Realistic session shape
+
+Items 1-4 are the stakeholder-visible deliverable and MUST land complete. Items 5-6 are polish and may slip to Session 7. If context gets tight, trigger session close at 70% and defer 5-6 cleanly rather than cut corners on 1-4. The editable inline grid with actuals flowing both ways is what the owner is watching for.
+
+---
+
+## Decisions the Owner Made at Session 5 Close (all 4 UX questions resolved)
+
+These are captured verbatim in .ai/core/plan_builder_ux.md §2 (the canonical source). Abridged here so you see them in priority-order context:
+
+1. **Canonical target/actual row shape.** "These are the values that the Coach or Player must insert, to confirm that the exercise was followed. For the sake of ease, and usage, we kept it in one row. One row because a player would finish that particular exercise Aerobic Cardio (Recovery Run), fill in the details, and only then move on to Anaerobic Alactic (Pro Agility 5 10 5 5 Repeats)." Rule: one exercise = one row; NO modal; user fills each row sequentially before moving on.
+
+2. **Responsive behaviour.** "You may wish to make your cards width larger across the page. Right now they are very short in width. Yes you may simplify when the user switches to mobile view, but that needs to be dynamic. We can not have the same view for laptop & pad, and mobile too. Right now it seems that everything is about mobile view, which is important, but it has to be handled dynamically." Rule: desktop/tablet/iPad is the primary workstation; mobile is a responsive collapse, not a separate template.
+
+3. **Who edits actuals — BOTH coach and player.** "Both of course. It has been told by me multiple times in the previous conversation with Claude Agent. This is repetitive. Isnt this mentioned in the documentation anywhere? Very basic thing to miss." Also documented in BRIEFING.md line 10 since project inception. Rule: both logins have editable-actuals on the same plan; `actual_by_user_id` stamps whoever saved.
+
+4. **Per-exercise column set.** "Please refer to the database. It is all following a pattern. The row and boxes adjust according to the max value that that particular exercise needs the value for. For exp (Refer to screenshot) Cardio, Weights and Agility, all have different amount of boxes. They come added automatically as per the exercise selected." Rule: row swaps its live cells when sub-category changes; disabled/greyed cells may be shown for visual alignment (matching LTAT's rendering pattern).
 
 ---
 
 ## Key Conventions (quick reference — full in CLAUDE.md)
 
-- **Framework reading is mandatory.** 13-item list for fresh agents (CLAUDE.md §3.1) **plus** `.ai/core/plan_builder_ux.md` for Session 6 specifically.
-- **Seven close artifacts** (§6.2): WIP · SESSION_LOG · handover (framework version stamp at top) · next prompt · HARD_LESSONS (if non-obvious things surfaced) · git commits · memory-to-repo promotion. **Screenshots/design artifacts (HL-13) go into `.ai/research-notes/screenshots/` or `.ai/research-notes/design/` with a sibling .md note — the moment they arrive, not at session close.**
-- **Project-wide session-N naming** — `session_6_handover.md` regardless of calendar date.
-- **Captain / Engine Engineer.** Technical decisions inside the plan are yours; product/scope/priority/UX is Rajat's. When you see a UX choice — STOP and check `plan_builder_ux.md` first; if the doc answers it, follow; if not, ASK.
-- **Responsive, not mobile-first.** Desktop/tablet/iPad is the primary workstation for coach-in-gym; mobile is a travel-mode fallback.
-- **Falcon theme cohesion** (CLAUDE.md §5.4). Font stack is already correct from Session 5; grid styles should match Falcon's density and spacing.
-- **CSRF is live** (HL-12). Every POST form needs `csrf_field()`.
-- **AuthFilter is live.** Both new POST routes go through it. Coach role check on `POST /coach/plans/{obf}`; Player role check on `POST /player/plans/{obf}`.
-- **Sealed files** (§5): only `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md`. Never modify.
-- **Commit cadence:** one logical unit per commit. Likely Session 6 commits: plan-builder-view-inline-grid → plan-builder-js-inline-rows → coach-show-editable → player-show-editable → responsive-breakpoints → session-close.
-- **No `--amend`, `--force`, `--no-verify`.**
-- **Scope discipline.** The rebuild is itself the scope; do NOT add new features. No PWA, no actuals-outside-the-grid, no analytics. If you finish early, stop. Session 7 is waiting.
-- **Evidence over assertion** (Rule 11). Every "works" claim in the handover comes with test or curl output.
-- **If anything about the UX feels like a guess — STOP and ask the owner.** Session 5 was rebuilt because the agent (me) guessed. Don't repeat.
+- **Foreign keys ARE used.** Engineering decision (HL-6).
+- **ONE migrations folder.** Raw-SQL workaround is NEVER the answer (HL-1).
+- **Plain English with Rajat.** He is a Vibe-Coder, not a coder. No jargon without definition.
+- **Captain / Engine Engineer model.** Technical decisions within scope are yours by default; UX / scope / priority / product is his.
+- **Responsive, not mobile-first.** Desktop/tablet/iPad primary; mobile is adaptive. (Session 5 got this wrong; plan_builder_ux.md §2.2 is the correction.)
+- **Falcon theme cohesion** (CLAUDE.md §5.4). Font stack is correct from Session 5; grid density and spacing should match Falcon.
+- **CSRF is live, AuthFilter is live.** Every POST form needs csrf_field(); every new route is role-checked + ownership-checked.
+- **Commit per logical unit.** Typical Session 6 commits: view-inline-grid → js-inline-rows → show-views-editable → POST-routes → responsive-breakpoints → audit-display → session-close.
+- **No --amend, no --force, no --no-verify.**
+- **Sealed:** .ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md. Never modify.
+- **Seven session-close artifacts** mandatory at close (CLAUDE.md §6.2), including memory-to-repo promotion. Binary design artifacts (screenshots, Figma exports, reference images) land in .ai/research-notes/screenshots/ or /design/ with sibling .md note the MOMENT they're received in chat, not at session close (HL-13).
+- **Begin session close at 70% context.** An honest partial close > a rushed full close > the abort protocol (§13).
 
 ---
 
@@ -121,139 +124,68 @@ From `.ai/core/plan_builder_ux.md §2`, Session 5 owner feedback:
 
 End-of-Session-6 targets:
 
-```bash
 cd C:/xampp/htdocs/court-fitness
 
-# Tests: existing 23 + at least 2 new (post-handler tests for coach+player update)
-./vendor/bin/phpunit tests/unit/              # all pass; count ≥ 25
+# Tests: 23 existing + at least 2 new (POST /coach/plans/{obf}, POST /player/plans/{obf}; plus a no-clobber test)
+./vendor/bin/phpunit tests/unit/                        # all pass; count ≥ 26
 
 # Migrations unchanged
-php spark migrate:status                      # 3 migrations applied
+php spark migrate:status                                # 3 migrations applied
 
 # Dev server
-php spark serve --port 8080                   # background
+php spark serve --port 8080                             # background
 
-# Flow — Coach creates plan on laptop width (1280px)
-#   /dev/sso-stub?as=coach → /coach/plans/new
-#   inline-grid form, fill fundamentals + Add Row for a date + inline exercise rows with numeric cells
-#   Submit → redirect to /coach/plans/{obf} with targets filled and actual cells editable-and-empty
-#   Type actuals inline → save → refresh → actuals persisted
+# Flow 1 — Coach creates plan on laptop width (DevTools 1280px)
+#   /dev/sso-stub?as=coach → /coach/plans/new (inline grid, wide layout)
+#   Fill fundamentals (player, week_of Monday, training_target, weight_unit)
+#   Add a training date + session; add exercise rows inline with numeric cells
+#   Submit → redirect to /coach/plans/{obf} with targets filled + actual cells editable-and-empty
+#   Type actuals inline → save → refresh → actuals persisted + "Logged by Coach Rajat · now" audit line
 
-# Flow — Player opens same plan on mobile (375px)
-#   /dev/sso-stub?as=player → /player → tap plan card → /player/plans/{obf}
-#   Responsive collapse: exercise rows are stacked cards, target read-only, actual inputs editable
-#   Type actuals → save → refresh → persisted, actual_by_user_id shows Rohan
+# Flow 2 — Player logs on mobile (DevTools 375px)
+#   /dev/sso-stub?as=player → /player (card grid: 1 col at this width) → tap plan → /player/plans/{obf}
+#   Responsive collapse: stacked cards per exercise, targets read-only, actuals editable
+#   Save → refresh as coach → grid shows "Logged by Rohan · now"
 
-# Flow — Coach sees player's actuals
-#   /dev/sso-stub?as=coach → /coach/plans/{obf} → grid shows player's actuals with "Logged by Rohan"
+# Flow 3 — No-clobber guarantee
+#   As player: log an actual on an entry
+#   As coach: open same plan, edit that entry's TARGET, save
+#   Refresh as player: the actual_json is still there, target_json updated
 
-# Flow — Responsive sanity
-#   Open /coach/plans on desktop — cards 3 across at 1280px, 2 at ~900px, 1 at <768px
-#   Open /coach/plans/new on desktop — inline grid wide; mobile — stacked rows
+# Flow 4 — Responsive sanity
+#   Resize browser through 375 / 768 / 992 / 1280 px — layout adapts without re-fetching
 
-# Flow — AuthFilter still works on new POSTs
-curl -sI "http://localhost:8080/coach/plans/Y2Y6MQ"      # 302 to HitCourt login unauth'd
-curl -sI -X POST "http://localhost:8080/coach/plans/Y2Y6MQ" # 302 likewise (filter runs before CSRF)
+# Flow 5 — AuthFilter + CSRF still gate the new POST routes
+curl -sI -X POST "http://localhost:8080/coach/plans/Y2Y6MQ"   # 302 to HitCourt login unauth'd
+# Submitting a POST form without a csrf_test_name token → 403
 
-git status                                    # clean at close
-git log --oneline -10                         # ≥ 4 meaningful commits this session
-```
+git status                                              # clean at session close
+git log --oneline -10                                   # ≥ 4 meaningful commits this session
 
-Also at close, paste actual screenshot comparison in the handover (now that HL-13 is policy): take a screenshot of YOUR new grid at desktop width and save to `.ai/research-notes/screenshots/session6-plan-builder-desktop.png` alongside a sibling `.md` note. Do the same for mobile. Compare side-by-side with the LTAT reference.
-
----
-
-## Known Risks
-
-1. **Guessing the column set per exercise type.** `plan_builder_ux.md §2.4` says the live set varies by exercise; do not hard-code. Drive from `exercise_types.name` plus possibly a small lookup table. If unsure which cells are active for a given sub-category, open the live LTAT system (`tourtest.ltat.org`) and count. Do NOT guess from the JS code you find.
-2. **Preserving already-logged actuals when coach edits targets.** If the coach re-saves the plan, `actual_json` for already-logged entries must NOT be clobbered. Controller logic must update target_json only, leaving actual_json untouched unless the same POST also contained actual-cell values.
-3. **CSRF token regeneration with multiple POST actions on one page.** The editable grid is one big form with one Save button → fine, one POST, standard CSRF. Do NOT split into per-row AJAX saves in Session 6 — stick to the Big-Save pattern for simplicity.
-4. **`target_json` schema drift.** The inline grid rewrites how the cells are submitted. You MUST match the same JSON keys defined in `.ai/core/exercise_json_shapes.md` so existing seeded plans render correctly.
-5. **Responsive test without a real device.** The only verification path on Windows XAMPP is Chrome DevTools mobile emulation. Test at 375px, 768px, 992px, 1280px. Ask the owner to sanity-check on his own phone + laptop before closing.
+At close, paste in the handover: a screenshot of the new desktop grid and a screenshot of the mobile stacked view, saved under .ai/research-notes/screenshots/session6-*.png with sibling .md notes (HL-13 is policy now).
 
 ---
 
-## Sprint 01 state entering Session 6 (post-correction)
+## Known Risks (descending likelihood)
 
-Sprint 01 scope per `.ai/sprints/sprint-01/sprint-plan.md`: "Coach plans a week, player logs actuals, on a phone."
-
-**Done:**
-- Auth (SSO + AuthFilter)
-- DB schema (3 migrations)
-- Exercise taxonomy seeded (3+12+204)
-- Player Dashboard (narrow, needs responsive fix)
-- Coach Dashboard
-- Plan create (wrong UI; controller works)
-- Plan list (narrow, needs responsive fix)
-- Plan show as read-only (wrong — should be editable grid)
-
-**Remaining for Sprint 01 "done" — this is Session 6's work:**
-- Inline-grid Plan Builder (rewrite)
-- Editable show view for coach (rewrite)
-- Editable show view for player (rewrite)
-- POST /coach/plans/{obf}, POST /player/plans/{obf}
-- Responsive widths across all plan-list and plan-detail screens
-- Audit display ("Logged by X, 2m ago")
-
-**Remaining after Session 6 (Session 7 or Sprint 02):**
-- PWA manifest + service worker
-- Prettified target-badge labels (if not done as part of grid polish)
-- Seal proposals at Sprint 01 close
-- Archival pass (SESSION_LOG) at Sprint 01 close
-
-Session 6 likely closes Sprint 01 if all the rebuild work lands. If responsive polish or audit display slips, Session 7 does those plus sprint-close chores.
-
----
-
-## Demo URLs (post-rebuild)
-
-- `http://localhost:8080/dev/sso-stub?as=coach` → `/coach` (dashboard with CTAs)
-- `http://localhost:8080/coach/plans` → My Plans (wide card grid on desktop, 3 cols at ≥992px)
-- `http://localhost:8080/coach/plans/new` → inline-grid Plan Builder
-- `http://localhost:8080/coach/plans/Y2Y6MQ` → editable grid (coach side) with Rohan's actuals visible if logged
-- `http://localhost:8080/dev/sso-stub?as=player` → `/player` (wide or stacked cards depending on width)
-- `http://localhost:8080/player/plans/Y2Y6MQ` → editable grid (player side)
-- Unauth'd → 302 to `https://www.org.hitcourt.com/login?return=…`
-
----
-
-## Proposed CLAUDE.md / BRIEFING.md edits (owner must approve)
-
-Session 5 identified two needed Tier-1 edits that I couldn't make myself. Sending them to the owner at Session 5 close:
-
-**BRIEFING.md:** escalate the "both record actuals" line from a bullet to a stand-alone paragraph with the word **BOTH** bolded. Justification: agents (me included) skimmed past the bullet.
-
-**CLAUDE.md §6.2 artifact 7 (memory-to-repo promotion):** explicitly include binary design artifacts (screenshots, Figma exports, sketches, videos) with the rule that they land in `.ai/research-notes/screenshots/` or `.ai/research-notes/design/` with a sibling `.md` note, **the moment they are shared, not at session close**.
-
-If the owner has approved either edit by the time Session 6 opens, you'll see them in CLAUDE.md / BRIEFING.md directly. If not, apply the spirit anyway.
+1. **Guessing the column set per exercise type.** plan_builder_ux.md §2.4 says the live cell set varies by sub-category; do NOT hard-code defaults for "all types." Drive from the picked sub-category; if unsure which cells are active for a given sub-category, open the live LTAT system at tourtest.ltat.org and count, or ask owner. Guessing = rebuilding for a third time.
+2. **Preserving logged actuals when coach edits targets.** If `plan_entries.actual_json IS NOT NULL` for an entry and the coach re-saves the plan, the actuals MUST NOT be clobbered. Test this explicitly (see Flow 3 above). Write a unit test for it.
+3. **Responsive testing without a real device.** The only verification path on Windows XAMPP is Chrome DevTools mobile emulation. Test at 375 / 768 / 992 / 1280 px. Ask the owner to eyeball on his own phone + laptop before declaring Session 6 closed.
+4. **CSRF + the single big-save form.** The editable grid is one form with one Save button — one POST, standard CSRF. Do NOT split into per-row AJAX saves in Session 6; that introduces token-rotation complexity (HL-12 + CI4's regenerate=true). Keep Big-Save simplicity for this session.
+5. **Audit display string.** "Logged by Coach Rajat" is fine on the coach's own view, but ensure it renders correctly on the player's view too (player must see the coach's name + role, not just a bare first name).
+6. **BRIEFING-skimming relapse.** Session 5's rebuild was caused by the agent skimming past BRIEFING.md line 10. If your Conformance Check cannot quote that line verbatim, you have not read it. Go back.
 
 ---
 
 ## When In Doubt
 
-- **Unclear UX detail?** Check `.ai/core/plan_builder_ux.md` first. If not there, ASK the owner. Do NOT guess.
-- **Unclear requirement?** Rule 9, ask. 30 seconds vs hours of rework.
-- **Tempted by "while I'm here…"?** Don't (Rule 7). Session 6 scope is explicitly the rebuild; do NOT add Session 7 items.
-- **A test feels flaky?** Investigate. Do NOT delete.
-- **Tempted by `--amend` / `--force` / `--no-verify`?** Stop.
-- **Context feels tight?** Initiate close EARLY (70% rule). The rebuild is large; if items 5-8 slip they slip. Better a clean partial than an abort.
-- **Owner mentions "screenshots" or "design"?** Save the image to `.ai/research-notes/screenshots/` and write a sibling note BEFORE you write any code that depends on it (HL-13).
-- **Owner seems to be repeating something?** You probably missed it in the docs. Grep `.ai/` for the key noun before you answer.
+- Unclear UX detail → .ai/core/plan_builder_ux.md first. If not there, ASK Rajat (Rule 9).
+- Unclear past decision → .ai/core/HARD_LESSONS.md + .ai/.daily-docs/23 Apr 2026/session_5_handover.md.
+- Tempted by a destructive git op → do not.
+- Tempted by "while I'm here, let me also…" → log in WIP.md follow-ups, do not do it (Rule 7).
+- Tempted to apply raw SQL because a migration fights you → STOP (HL-1).
+- Tempted to mock auth or read identity from a query string → NEVER (HL-8).
+- Tempted to skim BRIEFING or plan_builder_ux.md → STOP. Session 5 skimmed and rebuilt a day of work. Session 6 cannot repeat that. (HL-13.)
+- Owner shares a screenshot / design artifact → save to .ai/research-notes/screenshots/ with sibling .md note the MOMENT it arrives, not at session close (HL-13).
 
----
-
-## Fresh-Agent Checklist
-
-1. Read the 13-item list per CLAUDE.md §3.1.
-2. Read `.ai/core/plan_builder_ux.md` (14th mandatory read for Session 6).
-3. Read HL-13 and HL-12 (added Session 5).
-4. Run baseline verification (git, migrate status, phpunit — expect 23/23 green).
-5. Write `.ai/.daily-docs/{today}/session_6_conformance.md` with:
-   - All 8 standard questions answered with verbatim quotes from BRIEFING, findings, and plan_builder_ux.md
-   - Explicit acknowledgement that the Session 5 UI is being rebuilt; list the 4 files being replaced and the 2 new routes being added
-6. Commit it: `git commit -m "sprint-1: session 6 open — Framework Conformance Check committed (rebuild scope)"`.
-7. Tell Rajat in chat what you plan to build first, in owner-facing English. Ask if there's any late design input before you start the grid.
-8. Wait for explicit "proceed."
-9. On proceed — start the rebuild.
-
-Good luck. Session 5 built the wrong thing; Session 6 builds the right thing. The design is locked, the backend is ready, just follow the UX doc.
+Good luck. Run the Framework Conformance Check, commit it, wait for "proceed," rebuild the views per plan_builder_ux.md.
