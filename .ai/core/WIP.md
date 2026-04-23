@@ -4,7 +4,21 @@
 
 ## Current Status
 
-**Session 3 closed cleanly (2026-04-23).** Full vertical slice landed: DB migrated + seeded (3+12+204+7 taxonomy + 1 coach + 2 players + 1 plan + 3 entries), SSO validates + upserts users + mints session + redirects by role, Player Dashboard renders with orange branding (`#F26522`) and real demo data on a mobile-first layout. Dev stub SSO harness at `/dev` lets anyone click-in as any demo user without HitCourt being reachable. Curl-tested all three role flows end-to-end. No blockers. Two commits on `main` this session (feature + close), not pushed to GitHub.
+**Session 4 closed cleanly (2026-04-23).** This session was an architecture retrospective — scope pivoted mid-way at owner's request from "Plan Builder" to "evaluate and implement the 7 architecture improvements." Zero feature code written this session; sealed framework file untouched; all additions in CLAUDE.md and new project-specific templates under `.ai/core/templates/`. Commits: `30fb22b` (architecture) + `5a4d81e` (close).
+
+**Session 3 (previous) remains the most recent feature session:** DB migrated + seeded (3+12+204+7 taxonomy + 1 coach + 2 players + 1 plan + 3 entries), SSO working end-to-end, Player Dashboard renders on mobile with orange branding. Commit `2140d87`.
+
+**Plan Builder** (Session 4's original scope) **moved to Session 5** in a fresh conversation. See `.ai/.daily-docs/24 Apr 2026/prompt_for_session_5.md`.
+
+**Architectural changes in Session 4:**
+- `.ai/.ai2/` renamed → `.ai/core/` (self-describing).
+- CLAUDE.md §3 split: §3.1 fresh agent, §3.2 returning agent re-entry check, §3.3 Conformance Check must be committed.
+- CLAUDE.md §6: 7 close artifacts (was 6), framework version stamp in handovers, project-wide session-N naming.
+- CLAUDE.md §§11-13: archival policy, seal-candidates review cadence, session abort protocol.
+- `core/templates/SESSION_CONFORMANCE_TEMPLATE.md` + `SESSION_ABORT_TEMPLATE.md`.
+- SEALED_FILES.md updated with live watchlist.
+
+**Owner directive passed to Session 5 (post-close, 2026-04-23):** HitCourt-family visual cohesion. All Rajat's projects run Falcon theme — court-fitness's CSS should match Falcon's font stack exactly (see `prompt_for_session_5.md` for the full `font-family` string + 16.8px base size). Falcon reference: https://prium.github.io/falcon/v2.8.2/default/index.html.
 
 ## This Session's Scope (Session 3, 2026-04-23) — COMPLETED
 

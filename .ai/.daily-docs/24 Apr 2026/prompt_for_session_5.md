@@ -27,6 +27,31 @@ Session 4 was a scope-pivoted **architecture retrospective**, not a feature sess
 
 ---
 
+## ⚠️ Owner directive passed to Session 5 (post-Session-4 close)
+
+**HitCourt-family visual cohesion.** All of Rajat's live projects run the **Falcon theme**:
+
+> https://prium.github.io/falcon/v2.8.2/default/index.html
+
+Poppins is already the font in court-fitness — but the FULL font stack must match Falcon exactly, otherwise court-fitness looks subtly foreign next to the mothership's other modules. Owner's own words: "What the agents build is very different from what our live projects run on — I want the entire project line to look cohesive."
+
+**Update `public/assets/css/court-fitness.css` to use Falcon's exact stack** (verified from DevTools inspection of the Falcon demo):
+
+```css
+font-family: Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+font-size: 16.8px;   /* Falcon's base size — slightly larger than the 16px default */
+```
+
+Poppins weights to load from Google Fonts (already partially linked): 400, 500, 600, 700.
+
+**When Bootstrap 5 lands in Session 5 Task 1:** Bootstrap ships with its own system-font stack. Override `--bs-body-font-family` and `--bs-body-font-size` in `court-fitness.css` with the values above so Bootstrap's defaults don't bleed through. The orange (`--cf-primary: #F26522`) continues to layer on top.
+
+**When in doubt about a UI choice** (spacing, colour, component shape) open the Falcon demo URL in one tab and court-fitness in another — match Falcon's pattern. Stakeholders see HitCourt modules side by side; cohesion is a trust signal.
+
+This instruction is now permanent in `CLAUDE.md §5.4`.
+
+---
+
 ## Context — Sprint 01 state entering Session 5
 
 Sessions 1-3 shipped: framework docs + Sprint 01 plan + DB migrated + seeded + SSO working + Player Dashboard on mobile with orange branding (`#F26522`). Session 4 evolved the architecture. **No feature code was written in Session 4.**

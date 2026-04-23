@@ -127,7 +127,12 @@ Rajat (the owner) has defined our relationship as **Captain and Engine Engineer*
 - **Bootstrap 5** with a single custom stylesheet (`public/assets/css/overrides.css`) for brand tokens and mobile-specific tweaks. Do NOT modify Bootstrap core CSS (Master Rules Set §8).
 - **PWA** — manifest + service worker from day one. Installable to home screen. Capacitor native wrap is Sprint 2+.
 - **No Falcon theme in Sprint 1.** ltat-fitness used Falcon; we re-evaluate in Sprint 2 if Bootstrap 5 feels inadequate.
-- Fonts: Google Fonts Poppins (same as ltat-fitness) unless a concrete reason to change.
+- **Fonts: Google Fonts Poppins** — because every HitCourt-family project runs the **Falcon theme** (https://prium.github.io/falcon/v2.8.2/default/index.html), and Falcon uses Poppins. Match Falcon's font stack verbatim in `court-fitness.css` to keep court-fitness visually cohesive with the mothership:
+  ```
+  font-family: Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16.8px;   /* Falcon's base — slightly larger than 16px default */
+  ```
+  Load weights 400, 500, 600, 700 from Google Fonts. Owner's directive 2026-04-23: "What the agents build is very different from what our live projects run on — I want cohesion." When Bootstrap 5 lands, override `--bs-body-font-family` and `--bs-body-font-size` to the above values so Bootstrap defaults don't bleed through.
 
 ### 5.5 Exercise taxonomy (seeded from ltat-fitness, see HL-5 for quirks)
 
