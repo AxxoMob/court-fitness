@@ -20,8 +20,17 @@ Modifying a sealed file without owner approval is a **critical framework violati
 
 When an agent notices a file that has become load-bearing, fragile, or has been the source of multiple regressions, they may propose sealing it. The agent drafts an entry matching the schema above and asks Rajat in chat to confirm. Rajat decides; only Rajat may add new seals.
 
-Candidate files to consider sealing once court-fitness has code (do NOT seal in Sprint 0):
-- `app/Modules/Shared/Services/SsoService.php` — when built — because it is the identity boundary to HitCourt and any bug silently grants or denies access. Worth sealing once stable + tested.
-- Seed migrations for `exercise_types`, `fitness_categories`, `fitness_subcategories` — once the 204-row catalogue is loaded, those rows are the shared language of the product; arbitrary edits to names would break existing plans.
+## Seal-candidates review cadence (per `CLAUDE.md` §12)
 
-Neither of the above is built yet. Revisit in Sprint 1 close / Sprint 2 start.
+At every **sprint close**, the closing agent reviews code written during that sprint and lists seal candidates in the sprint handover under a "Seal Candidates for Owner Review" section. Owner confirms which, if any, to add here.
+
+Opportunistic mid-sprint sealing is also welcome via the same mechanism: draft the entry, propose to owner in chat, wait for explicit approval.
+
+## Candidates currently being watched
+
+- `app/Services/JwtValidator.php` — BUILT Session 2, tested 10/10. Identity boundary to HitCourt. Bug here silently grants or denies access. Propose sealing at Sprint 01 close once it's run in at least a few real sessions.
+- `app/Support/IdObfuscator.php` — planned Session 4. URL pattern helper; if broken, plan URLs break globally. Propose sealing once stable.
+- Seed migrations for `exercise_types`, `fitness_categories`, `fitness_subcategories` — ran Session 3 with 3+12+204 rows. Arbitrary edits to names would invalidate existing `plan_entries` FK references and break every saved plan. Propose sealing at Sprint 01 close.
+- `app/Controllers/Sso.php` — BUILT Session 3. The SSO handoff logic. Revisit at Sprint 02 once it's seen real HitCourt traffic.
+
+Revisit at every sprint close.

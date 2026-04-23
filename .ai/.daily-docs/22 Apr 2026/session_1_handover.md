@@ -1,6 +1,6 @@
 # Handover — court-fitness Session 1 (Sprint 00)
 
-> ⚠️ **Historical document — paths updated post-session.** This handover was written at Sprint 00 Session 1 close (2026-04-22). Rajat reorganised the `.ai/` folder on 2026-04-23 between sessions, moving every Tier 1-3 file out of `briefing/`, `current-state/`, `domain-reference/`, and `institutional-memory/` sub-folders into a flat `.ai/.ai2/` folder. Path references in this document (like `.ai/briefing/BRIEFING.md`, `.ai/current-state/WIP.md`, etc.) now resolve to `.ai/.ai2/{same-filename}` — same files, new location. The current `.ai/README.md` has the live folder map. Body left as-written for historical accuracy.
+> ⚠️ **Historical document — paths updated post-session.** This handover was written at Sprint 00 Session 1 close (2026-04-22). Rajat reorganised the `.ai/` folder on 2026-04-23 between sessions, moving every Tier 1-3 file out of `briefing/`, `current-state/`, `domain-reference/`, and `institutional-memory/` sub-folders into a flat `.ai/core/` folder. Path references in this document (like `.ai/briefing/BRIEFING.md`, `.ai/current-state/WIP.md`, etc.) now resolve to `.ai/core/{same-filename}` — same files, new location. The current `.ai/README.md` has the live folder map. Body left as-written for historical accuracy.
 
 ---
 

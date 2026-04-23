@@ -13,13 +13,13 @@ This is a long-horizon project under a strict AI Agent Framework. Before you do 
 1. `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` — operating constitution. Sealed. Read-only.
 2. `CLAUDE.md` (repo root) — project-specific conventions. Sections 3 + 4 especially.
 3. `.ai/README.md` — folder map.
-4. `.ai/.ai2/BRIEFING.md` — 1-page project overview.
-5. `.ai/.ai2/WIP.md` — current state. Has "In scope — NOT DONE" for Session 4.
-6. `.ai/.ai2/SESSION_LOG.md` — project diary (3 rows now).
-7. `.ai/.ai2/HARD_LESSONS.md` — eleven entries (HL-1..HL-11). Read all.
-8. `.ai/.ai2/SEALED_FILES.md`.
-9. `.ai/.ai2/KNOWN_ERRORS.md` (still empty with template).
-10. `.ai/.ai2/ltat-fitness-findings.md` — predecessor findings.
+4. `.ai/core/BRIEFING.md` — 1-page project overview.
+5. `.ai/core/WIP.md` — current state. Has "In scope — NOT DONE" for Session 4.
+6. `.ai/core/SESSION_LOG.md` — project diary (3 rows now).
+7. `.ai/core/HARD_LESSONS.md` — eleven entries (HL-1..HL-11). Read all.
+8. `.ai/core/SEALED_FILES.md`.
+9. `.ai/core/KNOWN_ERRORS.md` (still empty with template).
+10. `.ai/core/ltat-fitness-findings.md` — predecessor findings.
 11. `.ai/sprints/sprint-01/sprint-plan.md` — **your playbook.** Especially §3 (schema, now implemented) and §5 (UI screens — the meat of Session 4+).
 12. `.ai/.daily-docs/23 Apr 2026/session_3_handover.md` — what happened last session.
 
@@ -162,7 +162,7 @@ git log --oneline -10                                    # ≥ 3 meaningful comm
 
 1. **Plan Builder mobile UX.** The hardest screen. ltat-fitness's desktop form has ~10 columns side-by-side — cannot translate to a phone. Design the accordion → bottom-sheet drilldown carefully. Over-invest here; this is what stakeholders judge the product on.
 2. **AuthFilter + dev stub SSO interaction.** Filter must exempt `/sso`, `/dev`, `/dev/sso-stub`, and `/` (the CI4 welcome page). Getting this wrong creates an infinite redirect loop OR blocks SSO login. Test carefully.
-3. **JSON shape for `target_json` per exercise type.** Cardio, Weights, Agility each want different fields. Either branch in the Plan Builder UI or use a flexible dynamic form. Document the JSON shapes in a new doc (`.ai/.ai2/exercise_json_shapes.md` is a reasonable place).
+3. **JSON shape for `target_json` per exercise type.** Cardio, Weights, Agility each want different fields. Either branch in the Plan Builder UI or use a flexible dynamic form. Document the JSON shapes in a new doc (`.ai/core/exercise_json_shapes.md` is a reasonable place).
 4. **Session cookie persistence through a POST form submit.** The Plan Builder will POST — make sure CSRF tokens are configured (CI4 has built-in support; check `Config/Security.php`).
 
 ---
@@ -170,7 +170,7 @@ git log --oneline -10                                    # ≥ 3 meaningful comm
 ## When In Doubt
 
 - Unclear requirement → ask Rajat (Rule 9).
-- Unclear past decision → `.ai/.ai2/HARD_LESSONS.md` + the Session 3 handover.
+- Unclear past decision → `.ai/core/HARD_LESSONS.md` + the Session 3 handover.
 - Tempted by destructive git op → do not.
 - Tempted by "while I'm here, let me also…" → log in WIP.md follow-ups, do not do it (Rule 7).
 - Tempted to apply raw SQL because a migration fights you → STOP (HL-1).

@@ -161,8 +161,8 @@ public/assets/css/court-fitness.css
 ```
 app/Config/Routes.php            (+12 lines: coach/player/admin + dev routes)
 app/Controllers/Sso.php          (Session 2 skeleton → complete SSO flow)
-.ai/.ai2/WIP.md                   (rewritten for Session 3 close state)
-.ai/.ai2/SESSION_LOG.md           (Session 3 row appended)
+.ai/core/WIP.md                   (rewritten for Session 3 close state)
+.ai/core/SESSION_LOG.md           (Session 3 row appended)
 ```
 
 ### Commits on `main` this session
@@ -176,7 +176,7 @@ Not pushed to `origin`. Owner pushes manually.
 
 ## 9. Open Issues / Unfinished Work
 
-**None blocking.** Sprint 01 items deferred to Session 4 are listed in `.ai/.ai2/WIP.md` under "In scope — NOT DONE" + in `prompt_for_session_4.md`.
+**None blocking.** Sprint 01 items deferred to Session 4 are listed in `.ai/core/WIP.md` under "In scope — NOT DONE" + in `prompt_for_session_4.md`.
 
 Known small things:
 - Player Dashboard plan card's "View plan →" button points at `/player/plans/{id}` which is not yet routed. Session 4 adds that route + view. Until then, tapping 404s.
@@ -213,11 +213,11 @@ Did not:
 - Expand scope beyond what the owner approved. The owner's session-open feedback specifically triggered my Sprint 01 scope shift (Player Dashboard up from Session 5 → Session 3). I proposed the shift in chat, explained the trade-offs, owner said "proceed." That's a sanctioned scope change, not creep.
 
 Six session-close artifacts all exist:
-1. ✅ `.ai/.ai2/WIP.md` — rewritten for Session 3 close state.
-2. ✅ `.ai/.ai2/SESSION_LOG.md` — Session 3 row appended.
+1. ✅ `.ai/core/WIP.md` — rewritten for Session 3 close state.
+2. ✅ `.ai/core/SESSION_LOG.md` — Session 3 row appended.
 3. ✅ `.ai/.daily-docs/23 Apr 2026/session_3_handover.md` — this file.
 4. ✅ `.ai/.daily-docs/23 Apr 2026/prompt_for_session_4.md` — next-session kickoff.
-5. ✅ `.ai/.ai2/HARD_LESSONS.md` — no new HL this session (reason in §12).
+5. ✅ `.ai/core/HARD_LESSONS.md` — no new HL this session (reason in §12).
 6. ✅ Git commits with meaningful messages (2 this session: feature + close).
 
 Three evidence items all present: test output (§6), build output (§7), file-modification summary (§8).

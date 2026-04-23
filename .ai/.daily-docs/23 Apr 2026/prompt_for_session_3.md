@@ -12,14 +12,14 @@ This is a long-horizon project operated under a strict AI Agent Framework. Befor
 
 1. `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` — operating constitution. Sealed. Read-only.
 2. `CLAUDE.md` (repo root) — project-specific conventions. Sections 3 + 4 especially (mandatory reading list + Captain/Engineer collaboration model).
-3. `.ai/README.md` — folder map of the `.ai/` tree. Current layout: flat files in `.ai/.ai2/`, sprint plans in `.ai/sprints/`, daily docs in `.ai/.daily-docs/`.
-4. `.ai/.ai2/BRIEFING.md` — 1-page project overview.
-5. `.ai/.ai2/WIP.md` — current state. Has blockers and follow-ups. Read carefully.
-6. `.ai/.ai2/SESSION_LOG.md` — project diary.
-7. `.ai/.ai2/HARD_LESSONS.md` — ELEVEN entries (HL-1..HL-11). Read all. These are traps to avoid.
-8. `.ai/.ai2/SEALED_FILES.md` — sealed file list. Just the framework file.
-9. `.ai/.ai2/KNOWN_ERRORS.md` — currently empty with template.
-10. `.ai/.ai2/ltat-fitness-findings.md` — distilled findings from the predecessor project.
+3. `.ai/README.md` — folder map of the `.ai/` tree. Current layout: flat files in `.ai/core/`, sprint plans in `.ai/sprints/`, daily docs in `.ai/.daily-docs/`.
+4. `.ai/core/BRIEFING.md` — 1-page project overview.
+5. `.ai/core/WIP.md` — current state. Has blockers and follow-ups. Read carefully.
+6. `.ai/core/SESSION_LOG.md` — project diary.
+7. `.ai/core/HARD_LESSONS.md` — ELEVEN entries (HL-1..HL-11). Read all. These are traps to avoid.
+8. `.ai/core/SEALED_FILES.md` — sealed file list. Just the framework file.
+9. `.ai/core/KNOWN_ERRORS.md` — currently empty with template.
+10. `.ai/core/ltat-fitness-findings.md` — distilled findings from the predecessor project.
 11. `.ai/sprints/sprint-01/sprint-plan.md` — **your playbook.** Read all of §3 (schema) and §4 (backend logic) especially — Session 3 starts implementing them.
 12. `.ai/.daily-docs/23 Apr 2026/session_2_handover.md` — what happened before you arrived.
 
@@ -139,7 +139,7 @@ If any don't pass by session close, write them up honestly in the Session 3 hand
 ## When In Doubt
 
 - Unclear requirement → ask Rajat (framework Rule 9).
-- Unclear previous decision → read `.ai/.ai2/HARD_LESSONS.md` and the Session 2 handover.
+- Unclear previous decision → read `.ai/core/HARD_LESSONS.md` and the Session 2 handover.
 - Tempted by a destructive git op → do not.
 - Tempted by "while I'm here, let me also…" → log in WIP.md follow-ups, do not do it (Rule 7).
 - Tempted to apply raw SQL because a migration is complaining → STOP, that's HL-1.

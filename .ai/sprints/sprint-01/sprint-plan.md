@@ -165,12 +165,12 @@ Must read before any code:
 1. `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` (framework)
 2. `CLAUDE.md` (project constitution)
 3. `.ai/README.md` (folder map)
-4. `.ai/.ai2/BRIEFING.md`
-5. `.ai/.ai2/WIP.md`
-6. `.ai/.ai2/HARD_LESSONS.md` (all 9 entries)
-7. `.ai/.ai2/SESSION_LOG.md`
-8. `.ai/.ai2/SEALED_FILES.md`
-9. `.ai/.ai2/ltat-fitness-findings.md`
+4. `.ai/core/BRIEFING.md`
+5. `.ai/core/WIP.md`
+6. `.ai/core/HARD_LESSONS.md` (all 9 entries)
+7. `.ai/core/SESSION_LOG.md`
+8. `.ai/core/SEALED_FILES.md`
+9. `.ai/core/ltat-fitness-findings.md`
 10. **THIS FILE** (`.ai/sprints/sprint-01/sprint-plan.md`)
 11. `.ai/.daily-docs/22 Apr 2026/session_1_handover.md`
 12. `.ai/.daily-docs/22 Apr 2026/prompt_for_session_2.md`

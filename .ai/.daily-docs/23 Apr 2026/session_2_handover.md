@@ -27,10 +27,10 @@ Resolve Sprint 00's three open blockers, fix stale path references created by ow
 ## 3. What Was Done
 
 ### 3.1 Housekeeping (commit `54a12b0`)
-- Discovered at session open that owner had moved 7 files from `briefing/`, `current-state/`, `domain-reference/`, `institutional-memory/` sub-folders into a single flat `.ai/.ai2/` folder between sessions.
-- Fixed 18 stale path references via `replace_all` Edits across 8 living docs: `CLAUDE.md`, `.ai/.ai2/BRIEFING.md`, `.ai/.ai2/HARD_LESSONS.md`, `.ai/.ai2/KNOWN_ERRORS.md`, `.ai/sprints/sprint-01/sprint-plan.md`, `.ai/research-notes/xlsx-survey/README.md`.
+- Discovered at session open that owner had moved 7 files from `briefing/`, `current-state/`, `domain-reference/`, `institutional-memory/` sub-folders into a single flat `.ai/core/` folder between sessions.
+- Fixed 18 stale path references via `replace_all` Edits across 8 living docs: `CLAUDE.md`, `.ai/core/BRIEFING.md`, `.ai/core/HARD_LESSONS.md`, `.ai/core/KNOWN_ERRORS.md`, `.ai/sprints/sprint-01/sprint-plan.md`, `.ai/research-notes/xlsx-survey/README.md`.
 - Fully rewrote `.ai/README.md` with the current folder map + framework path overrides documentation.
-- Rewrote `.ai/.ai2/WIP.md` for Session 2 open state.
+- Rewrote `.ai/core/WIP.md` for Session 2 open state.
 - Added prominent "Historical document — paths updated" header notes (body preserved) on the 3 archival docs: `.ai/sprints/sprint-00/sprint-plan.md`, `.ai/.daily-docs/22 Apr 2026/session_1_handover.md`, `.ai/.daily-docs/22 Apr 2026/prompt_for_session_2.md`.
 
 ### 3.2 Dependencies (commit `42d4300`)
@@ -64,7 +64,7 @@ Resolve Sprint 00's three open blockers, fix stale path references created by ow
 
 ## 5. Sealed File Modifications
 
-**None.** The sealed framework file was not modified. No new seals added (candidates for future: `JwtValidator.php` once stable — noted in `.ai/.ai2/WIP.md` Open Decisions).
+**None.** The sealed framework file was not modified. No new seals added (candidates for future: `JwtValidator.php` once stable — noted in `.ai/core/WIP.md` Open Decisions).
 
 ## 6. Test Evidence
 
@@ -107,11 +107,11 @@ No errors. PSR-4 autoload warnings about `system/ThirdParty/Kint/` and `system/T
 ```
 CLAUDE.md                                              (7 replace_all Edits on stale paths; 1 Edit on PHP 8.1+→8.2+ from Session 1 close)
 .ai/README.md                                          (complete rewrite — new folder map)
-.ai/.ai2/WIP.md                                        (complete rewrite — Session 2 state)
-.ai/.ai2/BRIEFING.md                                   (1 path Edit)
-.ai/.ai2/HARD_LESSONS.md                               (1 path Edit + HL-11 added this session)
-.ai/.ai2/KNOWN_ERRORS.md                               (1 path Edit)
-.ai/.ai2/SESSION_LOG.md                                (Session 2 row appended)
+.ai/core/WIP.md                                        (complete rewrite — Session 2 state)
+.ai/core/BRIEFING.md                                   (1 path Edit)
+.ai/core/HARD_LESSONS.md                               (1 path Edit + HL-11 added this session)
+.ai/core/KNOWN_ERRORS.md                               (1 path Edit)
+.ai/core/SESSION_LOG.md                                (Session 2 row appended)
 .ai/sprints/sprint-01/sprint-plan.md                   (6 path Edits in reading list)
 .ai/research-notes/xlsx-survey/README.md               (2 path Edits)
 .ai/sprints/sprint-00/sprint-plan.md                   (header note added; body preserved)
@@ -140,14 +140,14 @@ tests/unit/JwtValidatorTest.php                        (new, ~160 lines)
 <session-close commit>  session 2 close artifacts
 <sso commit SHA>        sprint-1: SSO JwtValidator + /sso endpoint skeleton
 42d4300                 sprint-1: composer install + firebase/php-jwt
-54a12b0                 sprint-1: housekeeping — update paths to .ai/.ai2/
+54a12b0                 sprint-1: housekeeping — update paths to .ai/core/
 ```
 
 Not pushed to `origin` — owner (Rajat) pushes manually.
 
 ## 9. Open Issues / Unfinished Work
 
-**None blocking.** Sprint 01 items deferred to Session 3 are listed in `.ai/.ai2/WIP.md` under "This Session's Scope — NOT DONE" and in `prompt_for_session_3.md`. Specifically: AuthFilter, `users` and `coach_player_assignments` migrations, DB-aware SsoController, stub SSO dev harness, PWA scaffolding.
+**None blocking.** Sprint 01 items deferred to Session 3 are listed in `.ai/core/WIP.md` under "This Session's Scope — NOT DONE" and in `prompt_for_session_3.md`. Specifically: AuthFilter, `users` and `coach_player_assignments` migrations, DB-aware SsoController, stub SSO dev harness, PWA scaffolding.
 
 ## 10. Follow-Ups Noticed (NOT done this session)
 
@@ -159,11 +159,11 @@ Not pushed to `origin` — owner (Rajat) pushes manually.
 
 ## 11. Known Errors Added or Updated
 
-**None.** `.ai/.ai2/KNOWN_ERRORS.md` remains empty. The test-failure episode (see HL-11) was discovered + fixed in the same session, so it does not warrant a KE.
+**None.** `.ai/core/KNOWN_ERRORS.md` remains empty. The test-failure episode (see HL-11) was discovered + fixed in the same session, so it does not warrant a KE.
 
 ## 12. Hard Lessons Added
 
-**HL-11** — firebase/php-jwt throws `\DomainException` for malformed base64, not just `UnexpectedValueException`. Catch `\Throwable` as final defence. (Full entry in `.ai/.ai2/HARD_LESSONS.md`.)
+**HL-11** — firebase/php-jwt throws `\DomainException` for malformed base64, not just `UnexpectedValueException`. Catch `\Throwable` as final defence. (Full entry in `.ai/core/HARD_LESSONS.md`.)
 
 ## 13. Next Session
 
@@ -180,11 +180,11 @@ I did not:
 - Expand scope beyond what the owner approved. The owner-sanctioned path: housekeeping → `composer install` → `.env` → SSO validator + tests → `/sso` skeleton. Exactly what I did.
 
 All six session-close artifacts exist:
-1. ✅ `.ai/.ai2/WIP.md` — rewritten for Session 2 close state.
-2. ✅ `.ai/.ai2/SESSION_LOG.md` — row for Session 2 appended.
+1. ✅ `.ai/core/WIP.md` — rewritten for Session 2 close state.
+2. ✅ `.ai/core/SESSION_LOG.md` — row for Session 2 appended.
 3. ✅ `.ai/.daily-docs/23 Apr 2026/session_2_handover.md` — this file.
 4. ✅ `.ai/.daily-docs/23 Apr 2026/prompt_for_session_3.md` — next-session kickoff.
-5. ✅ `.ai/.ai2/HARD_LESSONS.md` — HL-11 added.
+5. ✅ `.ai/core/HARD_LESSONS.md` — HL-11 added.
 6. ✅ Git commits with meaningful messages (at least 3 this session: housekeeping, composer, SSO skeleton; plus session-close commit).
 
 The three evidence items are all present: test output pasted (§6), build output pasted (§7), file-modification summary (§8).

@@ -32,7 +32,7 @@ No code has been written yet. Bugs will be catalogued as they are found in Sprin
 
 ## Bugs inherited-in-spirit from ltat-fitness (NOT present in court-fitness code but worth knowing)
 
-These are not KEs in the court-fitness sense — there is no court-fitness code to host them yet. They are patterns to AVOID recreating. See `.ai/.ai2/HARD_LESSONS.md` for the full analysis.
+These are not KEs in the court-fitness sense — there is no court-fitness code to host them yet. They are patterns to AVOID recreating. See `.ai/core/HARD_LESSONS.md` for the full analysis.
 
 - ltat-fitness migration pipeline drift (HL-1) — Task 21 had to apply ALTER directly because the migrations folder had duplicate CreateTrainersTable entries. If we ever have to "apply a migration directly" in court-fitness, that is a sign the migrations folder itself is broken. Stop and fix the folder.
 - ltat-fitness mock authentication (HL-8) — controllers read `?mock_trainer_id=` from query string. If court-fitness ever develops a pattern where a user ID is taken from a non-session source, that is a critical bug — stop.

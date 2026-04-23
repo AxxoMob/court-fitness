@@ -13,6 +13,6 @@ python dump_sheets.py | head -400
 
 Requires Python 3.x + `openpyxl` installed (`pip install openpyxl`).
 
-**Status:** reference only. Results were captured and analysed in `.ai/.ai2/ltat-fitness-findings.md` (§9) and `.ai/.ai2/HARD_LESSONS.md` (HL-9). The scripts are kept so any future agent who needs to re-inspect the workbooks can do so without rewriting this wiring.
+**Status:** reference only. Results were captured and analysed in `.ai/core/ltat-fitness-findings.md` (§9) and `.ai/core/HARD_LESSONS.md` (HL-9). The scripts are kept so any future agent who needs to re-inspect the workbooks can do so without rewriting this wiring.
 
 Safe to delete if the workbooks themselves are no longer on disk.

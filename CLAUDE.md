@@ -29,28 +29,55 @@ Project horizon: 3–5 years. Multiple AI agents will work on this project over 
 
 ## 3. On Startup — Mandatory Reading Order
 
-**Every agent, every session, before any tool call that modifies state:**
+The reading obligation depends on whether you are entering a **fresh conversation** (blank chat history — the default case) or **continuing the same conversation** after a session close.
+
+### 3.1 Fresh agent (new conversation — default)
+
+A fresh Claude conversation has no memory of prior work. Read these IN ORDER, every session, before any tool call that modifies state:
 
 1. `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` — the operating constitution (read-only; sealed)
 2. `CLAUDE.md` — this file
 3. `.ai/README.md` — folder map of the `.ai/` tree
-4. `.ai/.ai2/BRIEFING.md` — 1-page project overview
-5. `.ai/.ai2/WIP.md` — current state
-6. `.ai/.ai2/SESSION_LOG.md` — at minimum the last 5 sessions; preferably all
-7. `.ai/.ai2/HARD_LESSONS.md` — every entry
-8. `.ai/.ai2/SEALED_FILES.md` — full list
-9. `.ai/.ai2/KNOWN_ERRORS.md` — every open KE
-10. `.ai/.ai2/ltat-fitness-findings.md` — distilled lessons from the predecessor project
+4. `.ai/core/BRIEFING.md` — 1-page project overview
+5. `.ai/core/WIP.md` — current state
+6. `.ai/core/SESSION_LOG.md` — at minimum the last 5 sessions; preferably all
+7. `.ai/core/HARD_LESSONS.md` — every entry
+8. `.ai/core/SEALED_FILES.md` — full list
+9. `.ai/core/KNOWN_ERRORS.md` — every open KE
+10. `.ai/core/ltat-fitness-findings.md` — distilled lessons from the predecessor project
 11. `.ai/sprints/sprint-NN/sprint-plan.md` — current sprint plan (check WIP.md for `NN`)
 12. `.ai/.daily-docs/{DD Mon YYYY}/session_*_handover.md` — the prior session's handover
 13. `.ai/.daily-docs/{DD Mon YYYY}/prompt_for_session_*.md` — YOUR kickoff brief
 
-**Reference material (read when relevant):**
+### 3.2 Returning agent (same conversation after a session close)
+
+If the same continuous Claude conversation is starting a new session (a previous close already happened in-thread), the constitutional docs are already in working memory. A lighter **re-entry check** suffices — but you MUST still do the full filesystem pre-flight (HL-10) to catch any owner changes between sessions:
+
+1. Run `git status` + `git log --oneline -5` + `ls -la .ai/` in bash — what changed since the last close?
+2. Re-read `.ai/core/WIP.md` — the owner may have edited it between sessions.
+3. Re-read the previous session's handover at `.ai/.daily-docs/{latest date}/session_*_handover.md` — owner may have appended a note.
+4. SCAN `.ai/core/HARD_LESSONS.md` only for entries newer than your last read.
+
+**Fresh-vs-returning test:** if this is a NEW Claude conversation (no prior chat history visible to you), you are a fresh agent → §3.1 applies. If the SAME conversation had a prior session close, you are a returning agent → §3.2 is acceptable.
+
+**Temptation warning:** an agent in a long conversation may falsely claim "returning" status to skip the full read. Enforcement: the Conformance Check (§3.3) asks specific questions whose answers only come from actual reading. A skimmer who claims returning status will fail questions about HL content or sealed-file details.
+
+### 3.3 Framework Conformance Check — commit it, don't just chat it
+
+After reading, complete the Framework Conformance Check (Appendix D of AI_AGENT_FRAMEWORK.md) BEFORE any state-changing tool call. **Two steps, not one:**
+
+1. Answer the 8 questions in chat.
+2. Write the same answers (plus baseline-verification output) to `.ai/.daily-docs/{today}/session_N_conformance.md` using the template at `.ai/core/templates/SESSION_CONFORMANCE_TEMPLATE.md`. Commit this file before requesting owner "proceed."
+
+Why commit it: chat history is transient. If the conversation ends, the Check answers are lost — no audit trail. The committed file creates a permanent record the owner can audit months or years later.
+
+Only after the commit does the agent request owner "proceed."
+
+### 3.4 Reference material (read when relevant)
+
 - `C:\xampp\htdocs\ltat-fitness-module\docs\*.md` — predecessor project's docs
 - `C:\xampp\htdocs\ltat-fitness-module\Database\ltat_fitness.sql` — authoritative source schema (13,398 lines; don't read whole; grep)
 - `C:\xampp\htdocs\ltat-fitness-module\docs\warp-project-instructions.md` — Rajat's Master Rules Set v1.0 (precursor to the AI_AGENT_FRAMEWORK; still informative)
-
-**After reading, complete the Framework Conformance Check** (Appendix D of AI_AGENT_FRAMEWORK.md) in chat BEFORE any state-changing tool call. Wait for owner "proceed."
 
 ---
 
@@ -121,7 +148,7 @@ Seeded from `C:\xampp\htdocs\ltat-fitness-module\Database\ltat_fitness.sql`. Sch
 
 ## 6. Session Protocol
 
-See `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` Section 3.
+See `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` Section 3. court-fitness extends that protocol in the ways documented in this file (§3.3 Conformance commit, §6 artifacts, §§11-13 policies).
 
 **Project-specific overrides to the framework's default paths** (applied portfolio-wide from court-fitness onwards):
 
@@ -130,17 +157,29 @@ See `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` Section 3.
 - Sprint documents: `.ai/sprints/sprint-NN/sprint-plan.md`.
 - Daily docs: `.ai/.daily-docs/{DD Mon YYYY}/`.
 - Per-session artifacts, renamed:
-  - `HANDOVER.md` → `session_N_handover.md` (N = session number of the day)
+  - `HANDOVER.md` → `session_N_handover.md`
   - `NEXT_SESSION_PROMPT.md` → `prompt_for_session_N.md`
-- If more than one session runs in a single day, the filename's `N` disambiguates.
+- **Naming convention for `N`:** use the **project-wide** session counter (Session 1 of the project = `session_1_handover.md`; Session 7 = `session_7_handover.md`), NOT the session-of-the-day. This avoids collisions when multiple sessions land on the same calendar date. The framework's default is "N of the day"; court-fitness deviates because (a) a fresh agent can't reliably tell what "the day" means without reading SESSION_LOG, (b) same-day collision happened on 2026-04-23 between Sessions 2 and 3.
 
-**Six session-close artifacts** (Framework Section 3.3) still mandatory:
-1. `.ai/.ai2/WIP.md` updated
-2. `.ai/.ai2/SESSION_LOG.md` appended
-3. `.ai/.daily-docs/{today}/session_N_handover.md` created
-4. `.ai/.daily-docs/{next session's date}/prompt_for_session_{N+1}.md` created
-5. `.ai/.ai2/HARD_LESSONS.md` updated (if anything non-obvious surfaced)
-6. Meaningful git commit(s)
+### 6.1 Session open artifact (before owner "proceed")
+
+- `.ai/.daily-docs/{today}/session_N_conformance.md` — the Framework Conformance Check answers, committed. See §3.3. Without this committed, do NOT request "proceed."
+
+### 6.2 Seven session-close artifacts (court-fitness extension of framework §3.3)
+
+All MUST exist before the session is declared closed:
+
+1. `.ai/core/WIP.md` updated to reflect the close state.
+2. `.ai/core/SESSION_LOG.md` appended with a 1-3 line row (project session number, date, sprint, summary).
+3. `.ai/.daily-docs/{today}/session_N_handover.md` created. **Must include a line near the top recording the framework version applied** — e.g. "Framework version: 1.0 (2026-04-17)." When the framework later publishes v1.1, this stamp tells any auditor which rules governed this session.
+4. `.ai/.daily-docs/{next session's date OR today}/prompt_for_session_{N+1}.md` created.
+5. `.ai/core/HARD_LESSONS.md` updated if anything non-obvious surfaced.
+6. Meaningful git commit(s) — one per logical unit of work + one session-close commit.
+7. **Memory-to-repo promotion.** Before the close commit, scan your session-private agent memory (the owner cannot see this; it dies when the conversation ends) for any load-bearing fact — owner preferences, architectural decisions, newly-discovered domain constraints, unresolved questions — NOT already in `.ai/` repo docs. Promote each into the appropriate `.ai/core/*.md` file (or a new reference doc under `.ai/core/`). Repo docs are amnesia-proof; agent memory is not.
+
+### 6.3 Session abort protocol (summary; full rules in §13)
+
+If a session cannot close cleanly — context exhaustion mid-step, tool-server crash, owner interrupt that leaves work incomplete — do NOT pretend it closed. Create `.ai/.daily-docs/{today}/session_N_abort.md` from `.ai/core/templates/SESSION_ABORT_TEMPLATE.md` and commit it. The next agent reads the abort file first and decides: resume, revert, or escalate to owner.
 
 ---
 
@@ -164,7 +203,7 @@ See `.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md` Section 3.
 
 ## 8. Sealed Files
 
-See `.ai/.ai2/SEALED_FILES.md`. As of Sprint 0, only `AI_AGENT_FRAMEWORK.md` is sealed. When the codebase matures and specific files become load-bearing, seal them there.
+See `.ai/core/SEALED_FILES.md`. As of Sprint 0, only `AI_AGENT_FRAMEWORK.md` is sealed. When the codebase matures and specific files become load-bearing, seal them there.
 
 ---
 
@@ -182,11 +221,61 @@ Sprint 0 has no code, so no verification commands apply yet.
 
 ---
 
+## 11. Archival Policy (institutional memory hygiene)
+
+The project horizon is 3–5 years. Left unchecked, `SESSION_LOG.md` and `HARD_LESSONS.md` grow to unreadable sizes, burdening every new agent with hundreds of lines to scan. Archival rules:
+
+- **`SESSION_LOG.md`:** at **sprint close** (not session close), rows older than the previous 3 sprints move to `.ai/core/archive/session-log-{oldest_date}-to-{newest_date}.md`. The main SESSION_LOG keeps the last 3 sprints in full.
+- **`HARD_LESSONS.md`:** lessons do NOT expire — they stay in the main file forever. BUT at every 10th HL added, create or update `.ai/core/HL_INDEX.md` with a one-liner per HL (number + title + category tag: schema / auth / UI / process / tooling / domain). Agents scan the INDEX first, then jump to relevant full entries.
+- **`KNOWN_ERRORS.md`:** resolved KEs (status = `fixed` or `won't fix`) older than 6 months move to `.ai/core/archive/known-errors-{year}.md`. Open KEs stay in the main file regardless of age.
+
+Archival is a **sprint-close checklist item**, not a session-close one. The closing agent of the last session of a sprint performs it. If the agent forgets, the owner flags it at sprint-audit time.
+
+---
+
+## 12. Seal Candidates Review Cadence
+
+Framework §5 defines criteria for sealing a file. court-fitness adds a cadence:
+
+At every **sprint close**, the closing agent reviews the code written during that sprint and proposes any file that meets sealing criteria (load-bearing + under-tested OR source of recurring regressions OR embedded domain rules). Candidates go into the sprint handover under a section titled "Seal Candidates for Owner Review." Owner confirms which, if any, to add to `.ai/core/SEALED_FILES.md`.
+
+Opportunistic sealing between sprints (agent notices a file became load-bearing mid-sprint) is welcome via the same mechanism: draft the entry matching the SEALED_FILES schema, propose to owner in chat, wait for explicit approval, add to the registry.
+
+Current seal count: 1 (`.ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md`). Ongoing candidates to watch: `app/Services/JwtValidator.php`, `app/Support/IdObfuscator.php` (once built), the three exercise-catalogue seed migrations, `app/Controllers/Sso.php`.
+
+---
+
+## 13. Session Abort Protocol
+
+A session that cannot close cleanly (context exhaustion, tool crash, owner interrupt mid-step) MUST leave a machine-readable abort record, NOT a pretend-closed one. A half-done migration silently left uncatalogued is how projects die; an honest abort is how projects survive.
+
+**Trigger criteria (any one of these):**
+- Context budget hit its limit mid-tool-call, AND you cannot fit all 7 close artifacts.
+- A tool call errored in a way that leaves repo state uncertain (migration ran partially? file half-written?).
+- Owner signalled an interrupt ("we have to stop") before close artifacts could be assembled.
+
+**Procedure (in order):**
+
+1. Do NOT pretend the session closed normally. Do NOT commit close artifacts if you cannot assemble all 7.
+2. Stop issuing state-changing tool calls immediately.
+3. Create `.ai/.daily-docs/{today}/session_N_abort.md` from the template at `.ai/core/templates/SESSION_ABORT_TEMPLATE.md`. Fill in: what was in-flight, current repo state (run `git status`; run `php spark migrate:status` if mid-migration; note any new tables unseeded; note any file half-written), what needs un-doing OR completing before the next agent can safely resume.
+4. Commit the abort file only. Do NOT commit the in-flight work unless it can be brought to a coherent state first.
+5. Notify the owner in chat.
+
+**The next agent's first action** (on reading the abort file) is to decide, in consultation with owner:
+- **Resume** — finish what was started, if safe.
+- **Revert** — roll back partial changes (e.g. `migrate:refresh` if migrations half-ran) and restart from the last clean commit.
+- **Escalate** — if the repo state is ambiguous, do not touch anything; ask owner.
+
+Aborts are not failures of the framework — they are the framework working. They become failures only when they are suppressed.
+
+---
+
 ## 10. What this file is NOT
 
-- Not a changelog. That's `.ai/.ai2/SESSION_LOG.md`.
-- Not a to-do list. That's `.ai/.ai2/WIP.md`.
-- Not a bug tracker. That's `.ai/.ai2/KNOWN_ERRORS.md`.
+- Not a changelog. That's `.ai/core/SESSION_LOG.md`.
+- Not a to-do list. That's `.ai/core/WIP.md`.
+- Not a bug tracker. That's `.ai/core/KNOWN_ERRORS.md`.
 - Not session narrative. That's the per-session handover in `.ai/.daily-docs/...`.
 - Not architecture-decision-records. Architectural decisions go in this file (Section 5) when locked, or in the sprint plan when being decided.
 

@@ -26,7 +26,7 @@ The lessons below are inherited from reading the predecessor project `ltat-fitne
 
 The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative source. The docs are aspirational / frozen-in-time / written by different agents with different assumptions.
 **Why it matters:** When porting schema from ltat-fitness to court-fitness, an agent who reads the docs and NOT the dump will build the wrong thing. Always grep the SQL dump for the actual CREATE TABLE statement before making schema decisions.
-**Where it lives in code:** `CLAUDE.md` §5.3 ("Database conventions"); see `.ai/.ai2/ltat-fitness-findings.md` for the correct canonical shapes to port.
+**Where it lives in code:** `CLAUDE.md` §5.3 ("Database conventions"); see `.ai/core/ltat-fitness-findings.md` for the correct canonical shapes to port.
 **Cross-refs:** HL-3; HL-5.
 
 ---
@@ -37,7 +37,7 @@ The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative sourc
 **Summary:** ltat-fitness's `assessments` table (live SQL dump evidence) uses column `score DECIMAL(8,2)` — NOT `value` as TASK_18A's doc claimed. The `trainer_id` column is nullable in the DB even though `AssessmentsModel.php` validates it as required — another doc/code drift.
 **Why it matters:** If/when court-fitness adds the fitness-testing kernel (Sprint 3+), we must name the column `score` to match the ltat-fitness convention and avoid renaming pain later. The trainer_id nullability should be decided deliberately — the model's required-validation is probably right, and the DB should match.
 **Where it lives in code:** Future Sprint 3+ schema. Not in Sprint 1 scope.
-**Cross-refs:** HL-2; `.ai/.ai2/ltat-fitness-findings.md` §"Assessment feature state."
+**Cross-refs:** HL-2; `.ai/core/ltat-fitness-findings.md` §"Assessment feature state."
 
 ---
 
@@ -79,7 +79,7 @@ The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative sourc
 **Summary:** The file `app/Modules/Fitness/Views/player/assessments/charts.php` in ltat-fitness is literally one line: `<h2>Player Assessments Charts (placeholder)</h2>`. But the controller (`Player/Assessments.php`) has a fully-built `prepareMetricChartData()` method that produces Chart.js-ready data. The backend was done; the frontend view was never built. Yet reports like `LTAT_FITNESS_UI_IMPLEMENTATION_SUMMARY.md` don't flag this gap.
 **Why it matters:** "ltat-fitness is working" ≠ "all ltat-fitness features are built." When court-fitness ports a feature, check not just that the backend exists but that the view actually has content. Do not assume parity just because file paths match.
 **Where it lives in code:** Not court-fitness code; applies to decisions about what to port.
-**Cross-refs:** `.ai/.ai2/ltat-fitness-findings.md` §"What's built vs placeholder"; HL-4.
+**Cross-refs:** `.ai/core/ltat-fitness-findings.md` §"What's built vs placeholder"; HL-4.
 
 ---
 
@@ -119,4 +119,4 @@ The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative sourc
 **Summary:** Rajat pointed me at four "helpful-project-documents": a BPP access PDF (just a download page, no content), two BPP 5-Day programming workbooks (KG and LBs), and a training-load ACWR workbook. I initially assumed these would inform tennis-specific design. They don't — BPP is a generic strength periodisation tool (copyright Outrajes LLC/Aquilina Strength Training, 2022), and the training-load xlsm has football/soccer sample data. HOWEVER, when I later read ltat-fitness's `fitness_subcategories` table (204 rows), it turned out to contain tennis-specific court work already — "On court rally blocks aerobic pace," "Court diagonals moderate pace repeats," "Short box service area shuttles." The tennis intelligence is in the LTAT SQL data, not in the generic source docs.
 **Why it matters:** Two things. (1) When Rajat asks for "tennis-specific tests" in a later sprint, the starting point is NOT the 14 generic metrics in `MetricTypesModel::getCommonMetrics()` — it's the tennis-coloured names in `fitness_subcategories`. (2) BPP's 12-week macrocycle model is real S&C science but NOT how coaches actually use the LTAT system — they work in week slices. So the BPP methodology is interesting background, not a blueprint.
 **Where it lives in code:** `.ai/reference_exercise_taxonomy.md` (in memory); will be seeded verbatim in Sprint 1.
-**Cross-refs:** HL-4; `.ai/.ai2/ltat-fitness-findings.md`.
+**Cross-refs:** HL-4; `.ai/core/ltat-fitness-findings.md`.
