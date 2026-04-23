@@ -1,0 +1,54 @@
+# Environment + secrets
+.env
+.env.*
+!.env.example
+
+# CodeIgniter 4 (populated when CI4 installs in Sprint 01)
+/vendor/
+/composer.phar
+/writable/cache/*
+!/writable/cache/index.html
+/writable/logs/*
+!/writable/logs/index.html
+/writable/session/*
+!/writable/session/index.html
+/writable/uploads/*
+!/writable/uploads/index.html
+/writable/debugbar/*
+
+# PHPUnit
+/phpunit
+/phpunit.xml
+/build/
+/.phpunit.cache/
+
+# Node / PWA build tooling (Sprint 02+)
+/node_modules/
+/npm-debug.log
+/yarn-error.log
+/package-lock.json
+/yarn.lock
+/public/assets/js/build/
+/public/assets/css/build/
+
+# Capacitor (Sprint 02+)
+/android/
+/ios/
+/capacitor.config.json.local
+
+# IDE / OS
+/.idea/
+/.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Agent / owner working files (not for the repo)
+/.ai/.tmp/
+
+# Claude Code local settings (per-machine, not shared)
+/.claude/settings.local.json
+
+# Local overrides
+/app/Config/Environment.php
