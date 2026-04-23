@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\UsersModel;
 use App\Services\JwtValidationException;
 use App\Services\JwtValidator;
+use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 
 /**
- * SSO handoff endpoint.
+ * SSO handoff endpoint. Accepts GET /sso?token=<jwt> from HitCourt.
  *
- * Accepts GET /sso?token=<jwt> from HitCourt, validates the JWT, and (in a
- * future session) will upsert the user and mint a local session. Currently,
- * Session 2 implements JWT validation only; user upsert + session + role-based
- * redirect land in Session 3 once the `users` migration exists.
+ * Flow:
+ *   1. Validate HS256 JWT (JwtValidator).
+ *   2. Upsert local users row keyed on hitcourt_user_id.
+ *   3. Mint a CI4 session with user_id + role + display name.
+ *   4. Redirect to the role-appropriate landing:
+ *        role=coach  → /coach
+ *        role=player → /player
+ *        anything else (admin, unknown) → /admin-placeholder
  *
- * Contract:
- *  - Missing or invalid token → 400 Bad Request.
- *  - Valid token → 200 OK with a diagnostic body (Session 2 placeholder).
- *  - Never returns 500 for a predictably-invalid token; that would leak info.
- *
- * See:
- *  - .ai/sprints/sprint-01/sprint-plan.md §2 (authentication design)
- *  - .ai/.ai2/HARD_LESSONS.md HL-8 (why real auth matters from day one)
+ * See HL-8 — the SSO boundary is the single entry point; JwtValidator unit
+ * tests guard every invalid-token path so this controller can stay small.
  */
 final class Sso extends BaseController
 {
-    public function index(): ResponseInterface
+    public function index(): RedirectResponse|ResponseInterface
     {
         $token = (string) $this->request->getGet('token');
 
@@ -35,14 +35,13 @@ final class Sso extends BaseController
             $validator = new JwtValidator();
             $claims    = $validator->validate($token);
         } catch (JwtValidationException $e) {
-            log_message('warning', 'SSO validation rejected a token: {msg}', ['msg' => $e->getMessage()]);
+            log_message('warning', 'SSO rejected a token: {msg}', ['msg' => $e->getMessage()]);
 
             return $this->response
                 ->setStatusCode(400)
                 ->setContentType('text/plain')
                 ->setBody('SSO token invalid: ' . $e->getMessage());
         } catch (\RuntimeException $e) {
-            // Configuration error (e.g. missing HITCOURT_JWT_SECRET) — 500 is correct here.
             log_message('error', 'SSO configuration error: {msg}', ['msg' => $e->getMessage()]);
 
             return $this->response
@@ -51,23 +50,35 @@ final class Sso extends BaseController
                 ->setBody('SSO is not configured on this server.');
         }
 
-        // TODO (Session 3):
-        //   1. Upsert user in `users` table by hitcourt_user_id.
-        //   2. Mint local CI4 session cookie.
-        //   3. Redirect: role=coach → /coach, role=player → /player,
-        //      role=admin or unknown → a "Fitness administration coming in
-        //      a later release" placeholder page.
-        //
-        // Session 2 placeholder response — proves validation works end-to-end.
+        $users = new UsersModel();
+        $user  = $users->upsertFromJwt($claims);
 
-        return $this->response
-            ->setStatusCode(200)
-            ->setContentType('text/plain')
-            ->setBody(sprintf(
-                "SSO validation OK [Session 2 placeholder].\nrole=%s\nhitcourt_user_id=%s\nemail=%s\n(Session 3 will replace this with a real session + role-based redirect.)",
-                (string) $claims['role'],
-                (string) $claims['hitcourt_user_id'],
-                (string) $claims['email'],
-            ));
+        if (empty($user)) {
+            log_message('error', 'SSO upsert failed for hitcourt_user_id={id}', ['id' => $claims['hitcourt_user_id']]);
+
+            return $this->response
+                ->setStatusCode(500)
+                ->setContentType('text/plain')
+                ->setBody('Could not establish your court-fitness account. Please try again.');
+        }
+
+        // Mint session
+        $session = session();
+        $session->regenerate(true);
+        $session->set([
+            'is_authenticated' => true,
+            'user_id'          => (int) $user['id'],
+            'hitcourt_user_id' => (int) $user['hitcourt_user_id'],
+            'role'             => (string) $user['role'],
+            'first_name'       => (string) $user['first_name'],
+            'family_name'      => (string) $user['family_name'],
+            'email'            => (string) $user['email'],
+        ]);
+
+        return match (strtolower((string) $user['role'])) {
+            'coach'  => redirect()->to('/coach'),
+            'player' => redirect()->to('/player'),
+            default  => redirect()->to('/admin-placeholder'),
+        };
     }
 }
