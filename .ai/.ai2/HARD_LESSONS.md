@@ -103,6 +103,16 @@ The live SQL dump at `Database/ltat_fitness.sql` is the only authoritative sourc
 
 ---
 
+## HL-11 — firebase/php-jwt throws `DomainException` (and possibly others) for malformed tokens, not just `UnexpectedValueException`
+
+**Discovered:** Sprint 01 Session 1, 2026-04-23 (during initial JwtValidator test run — 9 of 10 tests passed, 1 failed)
+**Summary:** The `firebase/php-jwt` library ^7.0 throws `\DomainException` (from its internal base64-URL decoder) when a token string is malformed like `"this.is.not-a-real-jwt"`. The library's README documents `UnexpectedValueException` as the malformed-token path, but in practice at least two PHP built-in exception types surface. My initial catch chain only caught `UnexpectedValueException`, so `DomainException` escaped the validator wrapper and the test `testMalformedTokenRejected` failed expecting `JwtValidationException`.
+**Why it matters:** At the SSO boundary, any uncaught exception crashes the validation flow and returns 500 Internal Server Error, which (a) leaks info to attackers, (b) blocks legitimate users if there's a transient encoding issue, (c) bypasses the cleaner 400 path the controller is supposed to use. A JWT validator MUST wrap any exception firebase/php-jwt throws into a single `JwtValidationException` type.
+**Where it lives in code:** `app/Services/JwtValidator.php` — the catch chain now has `catch (UnexpectedValueException | DomainException $e)` plus a final `catch (Throwable $e)` as defence-in-depth. Future library version bumps should re-run tests to catch any new exception types that surface.
+**Cross-refs:** HL-8 (why the SSO boundary must be tested before features); `tests/unit/JwtValidatorTest.php::testMalformedTokenRejected`; firebase/php-jwt commit 42d4300.
+
+---
+
 ## HL-9 — BPP and training-load source docs are generic S&C, NOT tennis-specific; ltat-fitness's catalogue IS tennis-specific
 
 **Discovered:** Sprint 0 Session 1, 2026-04-22
