@@ -2,6 +2,8 @@
 
 You are picking up work on **court-fitness** — a mobile-first PWA for tennis coaches to plan weekly training for their players, with both sides logging actual session results. It lives at C:\xampp\htdocs\court-fitness on Windows 11 XAMPP. Production URL: https://fitness.hitcourt.com.
 
+**Incoming AI Agent must not skim past any of the files. A thorough read is a must.**
+
 This is a long-horizon project under a strict AI Agent Framework. Before you do ANYTHING, read these docs **in order**:
 
 1. .ai/.ai-agent-framework/AI_AGENT_FRAMEWORK.md — operating constitution. Sealed. Read-only.
