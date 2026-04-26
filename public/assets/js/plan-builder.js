@@ -41,20 +41,40 @@
     const TYPE_WEIGHTS_RX = /^Weights/i;
     const TYPE_AGILITY_RX = /^Agility/i;
 
+    // Cell counts per format (per owner directive, 2026-04-26, confirmed against
+    // .ai/research-notes/screenshots/same-day-3-sessions.jpg):
+    //   Cardio  = 10 cells   Weights = 4 cells   Agility = 6 cells
+    // ALL cells are typable on every row regardless of format (the LTAT screenshot's
+    // greying is presentational only — `secondary: true` here means "render a muted
+    // visual style", NOT "disable the input"). Keys are derived from the cell labels
+    // and become the JSON shape stored in plan_entries.target_json / actual_json
+    // (see .ai/core/exercise_json_shapes.md).
     const CELLS_BY_FORMAT = {
         cardio:  [
-            { key: 'max_hr_pct',   label: 'Max HR %', min: 40, max: 100, step: 1 },
-            { key: 'duration_min', label: 'Duration min', min: 1, max: 300, step: 1 },
+            { key: 'target',       label: 'Target',     min: 0, step: 1 },
+            { key: 'max_hr_pct',   label: 'Max HR %',   min: 40, max: 100, step: 1 },
+            { key: 'duration_min', label: 'Duration',   min: 1, max: 300, step: 1 },
+            { key: 'sets',         label: 'Sets',       min: 1, max: 20, step: 1, secondary: true },
+            { key: 'reps',         label: 'Reps',       min: 1, max: 100, step: 1, secondary: true },
+            { key: 'work',         label: 'Work',       min: 0, step: 1, secondary: true },
+            { key: 'set_rest_sec', label: 'Set Rest',   min: 0, max: 600, step: 1, secondary: true },
+            { key: 'set_count',    label: 'Set',        min: 0, step: 1, secondary: true },
+            { key: 'rep_count',    label: 'Rep',        min: 0, step: 1, secondary: true },
+            { key: 'weight',       label: 'Weight',     min: 0, max: 500, step: 0.5, secondary: true },
         ],
         weights: [
-            { key: 'sets',     label: 'Sets',  min: 1, max: 20, step: 1 },
-            { key: 'reps',     label: 'Reps',  min: 1, max: 100, step: 1 },
-            { key: 'weight',   label: 'Weight', min: 0, max: 500, step: 0.5 },
-            { key: 'rest_sec', label: 'Rest sec', min: 0, max: 600, step: 1 },
+            { key: 'weight',       label: 'Weight',     min: 0, max: 500, step: 0.5 },
+            { key: 'sets',         label: 'Sets',       min: 1, max: 20, step: 1 },
+            { key: 'reps',         label: 'Reps',       min: 1, max: 100, step: 1 },
+            { key: 'set_rest_sec', label: 'Set Rest',   min: 0, max: 600, step: 1 },
         ],
         agility: [
-            { key: 'reps',     label: 'Reps', min: 1, max: 100, step: 1 },
-            { key: 'rest_sec', label: 'Rest sec', min: 0, max: 600, step: 1 },
+            { key: 'sets',         label: 'Sets',       min: 1, max: 20, step: 1 },
+            { key: 'reps',         label: 'Reps',       min: 1, max: 100, step: 1 },
+            { key: 'works',        label: 'Works',      min: 0, step: 1 },
+            { key: 'rests',        label: 'Rests',      min: 0, step: 1 },
+            { key: 'total_work',   label: 'Total Work', min: 0, step: 1 },
+            { key: 'work_rest',    label: 'Work Rest',  min: 0, max: 600, step: 1 },
         ],
     };
 
@@ -272,8 +292,8 @@
 
         const addRow = document.createElement('button');
         addRow.type = 'button';
-        addRow.className = 'btn btn-sm btn-outline-primary mt-2';
-        addRow.textContent = '+ Add exercise to this session';
+        addRow.className = 'cf-add-row';
+        addRow.textContent = '+ Add exercise';
         addRow.addEventListener('click', () => {
             addRowToBlock(blockIdx);
             render();
@@ -367,7 +387,7 @@
 
     function renderCell(row, def) {
         const cell = document.createElement('div');
-        cell.className = 'cf-cell';
+        cell.className = 'cf-cell' + (def.secondary ? ' cf-cell--secondary' : '');
         cell.innerHTML = `<span class="cf-cell__label">${esc(def.label)}</span>`;
 
         const inputs = document.createElement('div');

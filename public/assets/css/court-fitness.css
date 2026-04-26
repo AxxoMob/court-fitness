@@ -360,7 +360,14 @@ code {
     }
 }
 
-/* ---------- Plan Builder / show — inline grid (LOCKED UX, plan_builder_ux.md §1) ---------- */
+/* ---------- Plan Builder / show — inline grid (LOCKED UX, plan_builder_ux.md §1) ----------
+   Owner directive 2026-04-26: matches LTAT same-day-3-sessions.jpg.
+   - One compound row per Training Date: header line + N exercise rows below.
+   - Cell counts per format: Cardio=10, Weights=4, Agility=6.
+   - All cells typable; "secondary" cells get a muted visual (not disabled).
+   - NO horizontal scroll at any breakpoint (owner overrules LTAT here).
+   - Mobile <992px (Option A): each exercise row collapses into a stacked card.
+*/
 
 .cf-plan-builder { padding-bottom: 96px; /* space for sticky save bar */ }
 
@@ -401,83 +408,123 @@ code {
     .cf-fundamentals__row { grid-template-columns: repeat(4, 1fr); }
 }
 
-/* A "block" — one (training_date, session_period, format) and its rows. */
+/* A "block" = one (training_date, session_period, format) compound row + its exercise rows. */
 .cf-block {
     background: var(--cf-surface);
     border: 1px solid var(--cf-border);
     border-radius: var(--cf-radius-md);
     box-shadow: var(--cf-shadow-1);
-    margin-bottom: var(--cf-gap-4);
+    margin-bottom: var(--cf-gap-3);
     overflow: hidden;
 }
+
+/* Compound header row: dense, single-line, four selectors + delete on the left.
+   Layout matches LTAT same-day-3-sessions.jpg: [-] | date | session | coach | format. */
 .cf-block__head {
     display: grid;
-    grid-template-columns: auto 1fr 1fr 1fr auto;
-    gap: var(--cf-gap-3);
+    grid-template-columns: 36px minmax(140px, 1.2fr) minmax(110px, 1fr) minmax(140px, 1.2fr) minmax(110px, 1fr);
+    gap: var(--cf-gap-2);
     align-items: center;
-    padding: var(--cf-gap-3) var(--cf-gap-4);
+    padding: var(--cf-gap-2) var(--cf-gap-3);
     background: var(--cf-surface-muted);
     border-bottom: 1px solid var(--cf-border);
 }
-@media (max-width: 767.98px) {
+.cf-block__head .form-control,
+.cf-block__head .form-select { padding: 4px 8px; font-size: 0.9rem; min-height: 34px; }
+.cf-block__head .cf-cell__label {
+    display: none;   /* labels not shown in dense LTAT-style header; titles via title attr */
+}
+
+@media (max-width: 991.98px) {
     .cf-block__head {
-        grid-template-columns: auto 1fr;
+        grid-template-columns: 36px 1fr 1fr;
         row-gap: var(--cf-gap-2);
     }
-    .cf-block__head .cf-block__head-cell {
-        grid-column: span 2;
+    .cf-block__head .cf-block__head-cell:nth-child(4),
+    .cf-block__head .cf-block__head-cell:nth-child(5) {
+        grid-column: span 1;
     }
 }
+@media (max-width: 575.98px) {
+    .cf-block__head { grid-template-columns: 36px 1fr; }
+    .cf-block__head .cf-block__head-cell { grid-column: 2; }
+}
+
 .cf-block__head-icon {
-    width: 32px; height: 32px;
+    width: 30px; height: 30px;
     display: inline-flex; align-items: center; justify-content: center;
-    background: var(--cf-primary-tint);
-    color: var(--cf-primary-dark);
-    border: 1px solid var(--cf-primary);
-    border-radius: 6px;
+    background: #FFE0E0;
+    color: var(--cf-danger);
+    border: 1px solid var(--cf-danger);
+    border-radius: 4px;
     font-weight: 700;
     cursor: pointer;
     user-select: none;
+    line-height: 1;
 }
-.cf-block__head-icon:hover { background: var(--cf-primary); color: #fff; }
-.cf-block__body { padding: var(--cf-gap-3) var(--cf-gap-4); }
+.cf-block__head-icon:hover { background: var(--cf-danger); color: #fff; }
 
-/* A row inside a block — one exercise. */
+.cf-block__body { padding: 0; }
+
+/* Exercise row: dense single line on desktop (LTAT density).
+   Five columns: [add/remove buttons] | category-text | sub-category dropdown | cells | spacer */
 .cf-row {
     display: grid;
-    grid-template-columns: auto 220px 1fr auto;
-    gap: var(--cf-gap-3);
-    align-items: end;
-    padding: var(--cf-gap-3) 0;
+    grid-template-columns: 70px 130px minmax(180px, 220px) 1fr;
+    gap: var(--cf-gap-2);
+    align-items: center;
+    padding: 6px var(--cf-gap-3);
     border-bottom: 1px dashed var(--cf-border);
+    min-height: 44px;
 }
 .cf-row:last-child { border-bottom: 0; }
 
-.cf-row__catlabel { font-weight: 500; color: var(--cf-ink-muted); font-size: 0.85rem; }
+.cf-row__catlabel {
+    font-weight: 500;
+    color: var(--cf-ink);
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
+/* Compact sub-category select (full-width within its column). */
+.cf-row__sub .form-select { padding: 4px 8px; font-size: 0.88rem; min-height: 32px; }
+
+/* Cells inline strip — auto-flow column, all cells the same compact width.
+   No horizontal scroll — when the strip won't fit (Cardio's 10 cells on a
+   1024px iPad), the row falls back to mobile-card layout below 992px. */
 .cf-cells {
     display: grid;
-    gap: var(--cf-gap-2);
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(72px, 1fr);
+    gap: 6px;
+    align-items: end;
 }
-.cf-cell { display: flex; flex-direction: column; gap: 2px; }
+.cf-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .cf-cell__label {
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--cf-ink-subtle);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.cf-cell__inputs { display: flex; gap: 4px; align-items: stretch; }
+.cf-cell--secondary .cf-cell__label { color: #BFB9B3; }
+.cf-cell__inputs { display: flex; gap: 3px; align-items: stretch; }
 .cf-cell__inputs input {
     flex: 1; min-width: 0;
-    padding: 6px 8px;
+    padding: 4px 6px;
     border: 1px solid var(--cf-border);
-    border-radius: 6px;
-    font-size: 0.9rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
     font-family: inherit;
     background: var(--cf-surface);
     color: var(--cf-ink);
+    text-align: center;
 }
+.cf-cell__inputs input::placeholder { color: #C9C2BB; font-size: 0.78rem; }
 .cf-cell__inputs input:focus {
     outline: none;
     border-color: var(--cf-primary);
@@ -486,61 +533,64 @@ code {
 .cf-cell__inputs input.cf-target { background: var(--cf-surface-muted); }
 .cf-cell__inputs input.cf-actual { background: #FBFEF8; border-color: #C8E6C9; }
 .cf-cell__inputs input[readonly] { background: #F2EFEC; color: var(--cf-ink-muted); cursor: default; }
-.cf-cell__inputs input.cf-actual:disabled { background: #F2EFEC; }
-.cf-cell__pair-tag {
-    font-size: 0.65rem;
-    color: var(--cf-ink-subtle);
-    line-height: 1;
-    padding-top: 4px;
-}
 
-/* Mobile collapse: row becomes a stacked card. */
-@media (max-width: 767.98px) {
-    .cf-row {
-        grid-template-columns: 1fr auto;
-        gap: var(--cf-gap-2);
-        background: var(--cf-surface);
-        padding: var(--cf-gap-3);
-        margin-bottom: var(--cf-gap-2);
-        border: 1px solid var(--cf-border);
-        border-radius: var(--cf-radius-sm);
-    }
-    .cf-row__addremove { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
-    .cf-row__catlabel { grid-column: 1 / span 2; }
-    .cf-row__sub { grid-column: 1 / span 2; }
-    .cf-row__cells { grid-column: 1 / span 2; }
-    .cf-cells { grid-template-columns: repeat(2, 1fr); }
-}
+/* Secondary cells: Cardio's 8 less-common cells get a faint visual.
+   They are STILL TYPABLE (per owner 2026-04-26) — the styling is purely a
+   visual hint that these aren't the headline metrics for this format. */
+.cf-cell--secondary .cf-cell__inputs input { background: #F5F2EE; opacity: 0.85; }
+.cf-cell--secondary .cf-cell__inputs input:focus { opacity: 1; }
 
-.cf-row__addremove {
-    display: flex; gap: 4px;
-}
+/* Add/remove buttons on the left of each row (small, square, paired). */
+.cf-row__addremove { display: flex; gap: 4px; align-items: center; }
 .cf-row__addremove button {
-    width: 32px; height: 32px;
+    width: 28px; height: 28px;
     border: 1px solid var(--cf-border);
     background: var(--cf-surface);
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
     font-weight: 700;
-    color: var(--cf-ink-muted);
+    color: var(--cf-primary-dark);
+    line-height: 1;
+    padding: 0;
+    font-size: 0.95rem;
 }
-.cf-row__addremove button:hover { background: var(--cf-primary-tint); color: var(--cf-primary-dark); }
-.cf-row__addremove button.cf-row__remove:hover { background: #FFE0E0; color: var(--cf-danger); border-color: var(--cf-danger); }
+.cf-row__addremove .cf-row__add { color: var(--cf-primary); border-color: var(--cf-primary); background: #fff; }
+.cf-row__addremove .cf-row__add:hover { background: var(--cf-primary); color: #fff; }
+.cf-row__addremove .cf-row__remove { color: var(--cf-danger); border-color: #F5C2C2; background: #fff; }
+.cf-row__addremove .cf-row__remove:hover { background: var(--cf-danger); color: #fff; border-color: var(--cf-danger); }
 
 .cf-audit {
     grid-column: 1 / -1;
-    margin-top: 4px;
+    padding-left: 78px;
+    margin-top: 0;
     color: var(--cf-ink-subtle);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+    font-style: italic;
 }
 
+/* Add-row button at the bottom of each block's body (adds another exercise row). */
+.cf-add-row {
+    display: inline-block;
+    margin: var(--cf-gap-2) var(--cf-gap-3) var(--cf-gap-3);
+    padding: 4px 12px;
+    border: 1px solid var(--cf-primary);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--cf-primary-dark);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+.cf-add-row:hover { background: var(--cf-primary-tint); }
+
+/* "+ Add training date / session" — adds a NEW Training Date block at the bottom. */
 .cf-add-block {
     display: block;
     width: 100%;
     border: 2px dashed var(--cf-border);
     background: transparent;
     color: var(--cf-ink-muted);
-    padding: var(--cf-gap-4);
+    padding: var(--cf-gap-3);
     border-radius: var(--cf-radius-md);
     font-weight: 500;
     cursor: pointer;
@@ -568,11 +618,7 @@ code {
     margin-bottom: var(--cf-gap-4);
     border-bottom: 1px solid var(--cf-border);
 }
-.cf-plan-summary__title {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin: 0;
-}
+.cf-plan-summary__title { font-size: 1.4rem; font-weight: 600; margin: 0; }
 .cf-plan-summary__pill {
     background: var(--cf-primary-tint);
     color: var(--cf-primary-dark);
@@ -582,3 +628,38 @@ code {
     font-weight: 500;
 }
 .cf-plan-summary__sub { color: var(--cf-ink-muted); font-size: 0.95rem; }
+
+/* ---------- Mobile / narrow tablet collapse (<992px, Option A per owner 2026-04-26) ----------
+   Each exercise row becomes a stacked card. Cells go to a 2-column grid. The
+   compound block header rewraps to two rows. NO horizontal scroll at any width.
+*/
+@media (max-width: 991.98px) {
+    .cf-row {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "controls catlabel"
+            "sub      sub"
+            "cells    cells";
+        gap: var(--cf-gap-2);
+        background: var(--cf-surface);
+        padding: var(--cf-gap-3);
+        margin: 0 var(--cf-gap-2) var(--cf-gap-2);
+        border: 1px solid var(--cf-border);
+        border-radius: var(--cf-radius-sm);
+        align-items: center;
+        min-height: 0;
+    }
+    .cf-row__addremove { grid-area: controls; }
+    .cf-row__catlabel  { grid-area: catlabel; text-align: right; font-weight: 600; }
+    .cf-row__sub       { grid-area: sub; }
+    .cf-row__cells     { grid-area: cells; }
+    .cf-cells {
+        grid-auto-flow: row;
+        grid-auto-columns: auto;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--cf-gap-2);
+    }
+    .cf-cell__label { font-size: 0.7rem; }
+    .cf-cell__inputs input { padding: 6px 8px; font-size: 0.95rem; }
+    .cf-audit { padding-left: 0; margin-top: var(--cf-gap-2); }
+}
