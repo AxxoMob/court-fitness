@@ -146,11 +146,6 @@ $showActuals    = $canEditActuals;            // alias for clarity
                         </div>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <label for="notes" class="form-label">Notes <span class="cf-subtle">(optional)</span></label>
-                    <textarea class="form-control" id="notes" name="notes" rows="2"
-                              maxlength="5000"><?= esc(old('notes') ?? '') ?></textarea>
-                </div>
             </div>
         <?php endif; ?>
 
@@ -168,6 +163,16 @@ $showActuals    = $canEditActuals;            // alias for clarity
         <button type="button" class="cf-add-block" id="cf-add-block">
             + Add training date <?= $isNew ? '' : '/ session' ?>
         </button>
+
+        <?php if ($isNew): ?>
+            <!-- Notes — moved to the bottom of the page per owner directive 2026-04-26.
+                 Optional free text saved on the parent training_plans row. -->
+            <div class="cf-fundamentals mt-4">
+                <label for="notes" class="form-label">Notes <span class="cf-subtle">(optional)</span></label>
+                <textarea class="form-control" id="notes" name="notes" rows="3"
+                          maxlength="5000" placeholder="Anything the coach wants the player to remember (warm-up, equipment, recovery focus, etc.)"><?= esc(old('notes') ?? '') ?></textarea>
+            </div>
+        <?php endif; ?>
 
         <!-- Serialised state (the JS mirror of the grid, sent on submit). -->
         <input type="hidden" name="entries_json" id="entries_json" value="[]">

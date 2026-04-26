@@ -467,10 +467,12 @@ code {
 .cf-block__body { padding: 0; }
 
 /* Exercise row: dense single line on desktop (LTAT density).
-   Five columns: [add/remove buttons] | category-text | sub-category dropdown | cells | spacer */
+   Four columns: [add/remove buttons] | category dropdown | sub-category dropdown | cells.
+   Owner directive 2026-04-26: explicit cascade Format(block) → Category(row) → Sub-category(row),
+   to keep dropdowns short — Agility's flat sub-category list would be unwieldy otherwise. */
 .cf-row {
     display: grid;
-    grid-template-columns: 70px 130px minmax(180px, 220px) 1fr;
+    grid-template-columns: 70px minmax(140px, 160px) minmax(170px, 200px) 1fr;
     gap: var(--cf-gap-2);
     align-items: center;
     padding: 6px var(--cf-gap-3);
@@ -479,16 +481,8 @@ code {
 }
 .cf-row:last-child { border-bottom: 0; }
 
-.cf-row__catlabel {
-    font-weight: 500;
-    color: var(--cf-ink);
-    font-size: 0.88rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Compact sub-category select (full-width within its column). */
+/* Compact selects (full-width within their column). */
+.cf-row__cat .form-select,
 .cf-row__sub .form-select { padding: 4px 8px; font-size: 0.88rem; min-height: 32px; }
 
 /* Cells inline strip — auto-flow column, all cells the same compact width.
@@ -635,10 +629,10 @@ code {
 */
 @media (max-width: 991.98px) {
     .cf-row {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr;
         grid-template-areas:
-            "controls catlabel"
-            "sub      sub"
+            "controls cat"
+            "controls sub"
             "cells    cells";
         gap: var(--cf-gap-2);
         background: var(--cf-surface);
@@ -649,8 +643,8 @@ code {
         align-items: center;
         min-height: 0;
     }
-    .cf-row__addremove { grid-area: controls; }
-    .cf-row__catlabel  { grid-area: catlabel; text-align: right; font-weight: 600; }
+    .cf-row__addremove { grid-area: controls; align-self: start; }
+    .cf-row__cat       { grid-area: cat; }
     .cf-row__sub       { grid-area: sub; }
     .cf-row__cells     { grid-area: cells; }
     .cf-cells {

@@ -311,10 +311,6 @@
         const formatKey = formatKeyForType(typeName) || 'cardio';
         const cellDefs  = CELLS_BY_FORMAT[formatKey] || [];
 
-        const subcat    = subcatsById.get(row.fitness_subcategory_id);
-        const category  = categoriesById.get(row.fitness_category_id);
-        const catLabel  = category ? category.name : '—';
-
         // Add/remove buttons on the left
         const ar = document.createElement('div');
         ar.className = 'cf-row__addremove';
@@ -332,36 +328,53 @@
         });
         rowEl.appendChild(ar);
 
-        // Category label (read-only display, derived from sub-category)
-        const catEl = document.createElement('div');
-        catEl.className = 'cf-row__catlabel';
-        catEl.textContent = catLabel;
-        rowEl.appendChild(catEl);
+        // Category dropdown — explicit cascade (Format → CATEGORY → Sub-category, per owner 2026-04-26).
+        // Options scoped to the block's Format. Picking a Category clears the Sub-category if it no
+        // longer matches.
+        const catWrap = document.createElement('div');
+        catWrap.className = 'cf-row__cat';
+        const catSel = document.createElement('select');
+        catSel.className = 'form-select form-select-sm';
+        catSel.disabled = !canEditTargets;
+        const validCats = (categoriesByType.get(block.exercise_type_id) || []).slice().sort(byName);
+        const catOpts = ['<option value="">— pick category —</option>'];
+        validCats.forEach(cat => {
+            catOpts.push(`<option value="${cat.id}"${cat.id === row.fitness_category_id ? ' selected' : ''}>${esc(cat.name)}</option>`);
+        });
+        catSel.innerHTML = catOpts.join('');
+        catSel.addEventListener('change', () => {
+            const catId = parseInt(catSel.value, 10) || 0;
+            row.fitness_category_id = catId;
+            // If the previously-picked sub-category no longer belongs to the new category, clear it.
+            const sub = subcatsById.get(row.fitness_subcategory_id);
+            if (! sub || sub.fitness_category_id !== catId) {
+                row.fitness_subcategory_id = 0;
+            }
+            render();
+        });
+        catWrap.appendChild(catSel);
+        rowEl.appendChild(catWrap);
 
-        // Sub-category dropdown — options scoped to the block's format
+        // Sub-category dropdown — options scoped to the ROW's chosen Category.
+        // Stays disabled until a Category is picked (cascading-cascade).
         const subWrap = document.createElement('div');
         subWrap.className = 'cf-row__sub';
         const subSel = document.createElement('select');
         subSel.className = 'form-select form-select-sm';
-        subSel.disabled = !canEditTargets;     // player can't change the prescribed exercise
-        const validCats = (categoriesByType.get(block.exercise_type_id) || []).slice().sort(byName);
-        const opts = ['<option value="">— pick exercise —</option>'];
-        validCats.forEach(cat => {
-            const subs = (subcatsByCat.get(cat.id) || []).slice().sort(byName);
-            if (subs.length === 0) return;
-            opts.push(`<optgroup label="${esc(cat.name)}">`);
+        subSel.disabled = !canEditTargets || row.fitness_category_id === 0;
+        const subOpts = ['<option value="">— pick exercise —</option>'];
+        if (row.fitness_category_id) {
+            const subs = (subcatsByCat.get(row.fitness_category_id) || []).slice().sort(byName);
             subs.forEach(s => {
-                opts.push(`<option value="${s.id}" data-cat="${cat.id}"${s.id === row.fitness_subcategory_id ? ' selected' : ''}>${esc(s.name)}</option>`);
+                subOpts.push(`<option value="${s.id}"${s.id === row.fitness_subcategory_id ? ' selected' : ''}>${esc(s.name)}</option>`);
             });
-            opts.push('</optgroup>');
-        });
-        subSel.innerHTML = opts.join('');
+        }
+        subSel.innerHTML = subOpts.join('');
         subSel.addEventListener('change', () => {
-            const subId = parseInt(subSel.value, 10) || 0;
-            row.fitness_subcategory_id = subId;
-            const sub = subcatsById.get(subId);
-            row.fitness_category_id = sub ? sub.fitness_category_id : 0;
-            render();
+            row.fitness_subcategory_id = parseInt(subSel.value, 10) || 0;
+            // No re-render needed — only the cells depend on Format (block-level), and Sub-category change
+            // doesn't shift cells in the current Sprint 1 model. Keep DOM stable so the user's input focus
+            // doesn't get reset.
         });
         subWrap.appendChild(subSel);
         rowEl.appendChild(subWrap);
