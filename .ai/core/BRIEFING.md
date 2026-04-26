@@ -1,8 +1,10 @@
 # court-fitness — 1-Page Briefing
 
-**What it is:** A mobile-first Progressive Web App (PWA) for tennis coaches and their players. Coaches build weekly training plans; players and coaches both log actual session results. Both sides stay in sync via ordinary database refresh.
+**What it is:** A mobile-first Progressive Web App (PWA) for tennis coaches and their players. Coaches build multiple weekly training plans; players and coaches both log actual session results. Both sides stay in sync via ordinary database refresh.
 
 **Where it lives:** Production URL `https://fitness.hitcourt.com`. Local dev at `C:\xampp\htdocs\court-fitness` (XAMPP).
+
+**Who records actuals — both sides, equally.** This is the load-bearing fact of the product. The coach records actuals when training the player in person (laptop or iPad in the gym). The player records actuals when working alone, especially while travelling. Both logins mount the same editable-actuals view of the same plan; whichever side saves last has their identity stamped on the entry. **Skipping past this paragraph caused HL-13 — a full Plan Builder rebuild in Session 6.** Every agent reads it every session.
 
 **Who uses it:**
 - **Coach** — creates and edits weekly training plans; can also record session actuals when training the player in person.

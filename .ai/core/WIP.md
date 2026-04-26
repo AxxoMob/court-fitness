@@ -119,9 +119,9 @@ SSO foundation: composer install + firebase/php-jwt ^7.0, JwtValidator + 10 unit
 
 **None functional.** Session 6 is unblocked. Scope: **rebuild Session 5's UI** per `.ai/core/plan_builder_ux.md` (LOCKED by owner 2026-04-23). Inline wide grid, both coach and player can edit actuals, responsive not mobile-first, save redirects to editable grid. Full detail: `.ai/.daily-docs/24 Apr 2026/prompt_for_session_6.md`.
 
-**Two Tier-1 edits pending owner approval** (not made because CLAUDE.md and BRIEFING.md are owner-only):
-- BRIEFING.md — escalate the "both record actuals" line to a standalone paragraph so no agent can skim past it.
-- CLAUDE.md §6.2 artifact 7 — extend memory-to-repo promotion to explicitly include binary design artifacts (screenshots, Figma, videos), landing in `.ai/research-notes/screenshots/` or `.ai/research-notes/design/` the moment they arrive.
+**Two Tier-1 edits — owner-approved at Session 6 open (2026-04-26) and applied:**
+- ✅ BRIEFING.md line 3 corrected to "Coaches build *multiple* weekly training plans" + new standalone "Who records actuals" paragraph that calls out the both-sides equality and references HL-13. No agent can skim past it now.
+- ✅ CLAUDE.md §6.2 artifact #7 extended with a binary-artifact promotion paragraph: every screenshot, Figma export, sketch, reference image, video shared in chat lands in `.ai/research-notes/screenshots/` or `.ai/research-notes/design/` within the same session, with a sibling `.md` note (what / who / when / which feature / spoken context). HL-13 is now codified.
 
 ## Noticed this Session 5, for Future (NOT done here)
 
