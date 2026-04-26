@@ -360,6 +360,14 @@ code {
     }
 }
 
+/* =========================================================================
+   ===== SEALED-BEGIN: Plan Builder + show inline-grid styles =====
+   This section is SEALED per owner directive 2026-04-26 (Sprint 01).
+   See .ai/core/SEALED_FILES.md for the seal entry. Do NOT modify any rule
+   between SEALED-BEGIN and SEALED-END below without explicit owner approval
+   in chat — modification of a sealed section is a critical framework
+   violation (AI_AGENT_FRAMEWORK.md §5).
+   ========================================================================= */
 /* ---------- Plan Builder / show — inline grid (LOCKED UX, plan_builder_ux.md §1) ----------
    Owner directive 2026-04-26: matches LTAT same-day-3-sessions.jpg.
    - One compound row per Training Date: header line + N exercise rows below.
@@ -367,6 +375,8 @@ code {
    - All cells typable; "secondary" cells get a muted visual (not disabled).
    - NO horizontal scroll at any breakpoint (owner overrules LTAT here).
    - Mobile <992px (Option A): each exercise row collapses into a stacked card.
+   - Explicit Format→Category→Sub-cat cascade per row.
+   - Notes textarea sits at the bottom of the page, not the top.
 */
 
 .cf-plan-builder { padding-bottom: 96px; /* space for sticky save bar */ }
@@ -657,3 +667,8 @@ code {
     .cf-cell__inputs input { padding: 6px 8px; font-size: 0.95rem; }
     .cf-audit { padding-left: 0; margin-top: var(--cf-gap-2); }
 }
+/* =========================================================================
+   ===== SEALED-END: Plan Builder + show inline-grid styles =====
+   End of the sealed Plan Builder CSS section. Rules below this line are
+   not sealed and may be modified following normal review.
+   ========================================================================= */
