@@ -47,7 +47,10 @@ final class Plans extends BaseController
         }
         unset($p);
 
-        return view('coach/plans/index', ['plans' => $plans]);
+        return view('coach/plans/index', [
+            'plans'     => $plans,
+            'mainClass' => 'cf-main--wide',
+        ]);
     }
 
     public function new(): string|RedirectResponse
@@ -56,7 +59,9 @@ final class Plans extends BaseController
             return redirect()->to('/');
         }
 
-        return view('coach/plans/new', $this->buildFormContext());
+        return view('coach/plans/new', $this->buildFormContext() + [
+            'mainClass' => 'cf-main--wide',
+        ]);
     }
 
     public function store(): RedirectResponse
@@ -76,7 +81,6 @@ final class Plans extends BaseController
         $notes         = trim((string) ($post['notes'] ?? ''));
         $entriesRaw    = (string) ($post['entries_json'] ?? '[]');
 
-        // Combobox: custom wins if present, otherwise the picked suggestion.
         $trainingTarget = $targetCustom !== '' ? $targetCustom : $targetChoice;
 
         $errors = $this->validatePlanInput(
@@ -143,7 +147,7 @@ final class Plans extends BaseController
         }
 
         return redirect()->to('/coach/plans/' . IdObfuscator::encode((int) $planId))
-            ->with('notice', 'Plan saved.');
+            ->with('notice', 'Plan saved. You can now type actuals here.');
     }
 
     public function show(string $obfuscatedId): string|RedirectResponse
@@ -176,24 +180,198 @@ final class Plans extends BaseController
             "SELECT pe.*,
                     et.name AS type_name,
                     fc.name AS category_name,
-                    fs.name AS subcategory_name
+                    fs.name AS subcategory_name,
+                    CONCAT(au.first_name, ' ', au.family_name) AS audit_user_name,
+                    au.role AS audit_role
              FROM plan_entries pe
              JOIN exercise_types       et ON et.id = pe.exercise_type_id
              JOIN fitness_categories   fc ON fc.id = pe.fitness_category_id
              JOIN fitness_subcategories fs ON fs.id = pe.fitness_subcategory_id
+             LEFT JOIN users           au ON au.id = pe.actual_by_user_id
              WHERE pe.training_plan_id = ? AND pe.deleted_at IS NULL
              ORDER BY pe.training_date, pe.session_period, pe.sort_order",
             [$planId]
         )->getResultArray();
 
-        return view('coach/plans/show', [
+        return view('coach/plans/show', $this->buildFormContext() + [
             'plan'           => $plan,
             'entries'        => $entries,
             'obfuscated_id'  => $obfuscatedId,
+            'mainClass'      => 'cf-main--wide',
         ]);
     }
 
+    public function update(string $obfuscatedId): RedirectResponse
+    {
+        if (session()->get('role') !== 'coach') {
+            return redirect()->to('/');
+        }
+
+        $planId = IdObfuscator::decode($obfuscatedId);
+        if ($planId === null) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $coachId = (int) session()->get('user_id');
+        $db      = db_connect();
+
+        // Re-verify ownership; never trust the client.
+        $plan = $db->query(
+            'SELECT id, week_of FROM training_plans
+              WHERE id = ? AND coach_user_id = ? AND deleted_at IS NULL',
+            [$planId, $coachId]
+        )->getRowArray();
+
+        if ($plan === null) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $weekOf     = (string) $plan['week_of'];
+        $entriesRaw = (string) ($this->request->getPost('entries_json') ?? '[]');
+        $entries    = json_decode($entriesRaw, true);
+
+        if (! is_array($entries)) {
+            return redirect()->back()->with('errors', ['Could not read submitted entries.']);
+        }
+
+        $applied = $this->applyUpdates(
+            $planId,
+            $entries,
+            $weekOf,
+            $coachId,
+            canUpdateTargets: true,
+            canUpdateActuals: true,
+        );
+
+        if ($applied['errors'] !== []) {
+            return redirect()->back()->with('errors', $applied['errors']);
+        }
+
+        return redirect()->to('/coach/plans/' . $obfuscatedId)
+            ->with('notice', 'Plan updated.');
+    }
+
     // ------------------------------------------------------------------
+
+    /**
+     * Apply target+actual updates to existing entries (no schema changes).
+     *
+     * No-clobber rule (per Session 6 prompt + plan_builder_ux.md §4.3): if the
+     * caller's payload omits the actual key for a given entry but the row in the
+     * DB already has actual_json IS NOT NULL, preserve the existing actual_json.
+     * The same applies in reverse for targets when the caller is the player.
+     *
+     * @param array<int, array<string, mixed>> $entries
+     * @return array{updated: int, errors: array<int, string>}
+     */
+    private function applyUpdates(
+        int $planId,
+        array $entries,
+        string $weekOf,
+        int $savedByUserId,
+        bool $canUpdateTargets,
+        bool $canUpdateActuals,
+    ): array {
+        $db      = db_connect();
+        $errors  = [];
+        $updated = 0;
+
+        try {
+            $monday = new \DateTimeImmutable($weekOf);
+        } catch (Throwable) {
+            return ['updated' => 0, 'errors' => ['Invalid plan week.']];
+        }
+        $windowStart = $monday->format('Y-m-d');
+        $windowEnd   = $monday->modify('+6 days')->format('Y-m-d');
+
+        try {
+            $db->transStart();
+
+            foreach ($entries as $i => $e) {
+                $entryId = (int) ($e['id'] ?? 0);
+                if ($entryId <= 0) {
+                    continue; // create-on-update flow not supported in Session 6
+                }
+
+                // Verify the entry belongs to this plan.
+                $row = $db->query(
+                    'SELECT id, target_json, actual_json FROM plan_entries
+                      WHERE id = ? AND training_plan_id = ? AND deleted_at IS NULL',
+                    [$entryId, $planId]
+                )->getRowArray();
+                if ($row === null) {
+                    continue; // silently drop unknown ids
+                }
+
+                $update = [];
+
+                if ($canUpdateTargets && array_key_exists('target', $e)) {
+                    $tBag = is_array($e['target']) ? $e['target'] : [];
+                    $tBag = $this->stripNullsAndEmpties($tBag);
+                    $update['target_json'] = $tBag === [] ? null : json_encode($tBag, JSON_UNESCAPED_UNICODE);
+                }
+
+                if ($canUpdateActuals && array_key_exists('actual', $e)) {
+                    $aBag = is_array($e['actual']) ? $e['actual'] : [];
+                    $aBag = $this->stripNullsAndEmpties($aBag);
+                    if ($aBag === []) {
+                        // No-clobber: empty submitted actual but row already has one → preserve.
+                        if ($row['actual_json'] !== null) {
+                            // skip writing; preserves existing actual_json
+                        } else {
+                            $update['actual_json']       = null;
+                            $update['actual_by_user_id'] = null;
+                            $update['actual_at']         = null;
+                        }
+                    } else {
+                        $update['actual_json']       = json_encode($aBag, JSON_UNESCAPED_UNICODE);
+                        $update['actual_by_user_id'] = $savedByUserId;
+                        $update['actual_at']         = date('Y-m-d H:i:s');
+                    }
+                }
+
+                if ($update !== []) {
+                    $update['updated_at'] = date('Y-m-d H:i:s');
+                    $db->table('plan_entries')->where('id', $entryId)->update($update);
+                    $updated++;
+                }
+
+                // (sanity) ensure submitted dates aren't outside the plan's window —
+                // not enforced for updates yet because we don't move dates in Session 6
+                // (date stays as it was at create time). Window kept here for future use:
+                $submittedDate = (string) ($e['training_date'] ?? '');
+                if ($submittedDate !== '' && ($submittedDate < $windowStart || $submittedDate > $windowEnd)) {
+                    log_message('warning', 'Entry ' . $entryId . ' submitted with out-of-window date ' . $submittedDate . ' (ignored)');
+                }
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \RuntimeException('DB transaction rolled back during update.');
+            }
+        } catch (Throwable $ex) {
+            log_message('error', 'Plan update failed: ' . $ex->getMessage());
+            $errors[] = 'Could not save updates. Please try again.';
+        }
+
+        return ['updated' => $updated, 'errors' => $errors];
+    }
+
+    /**
+     * @param array<string, mixed> $bag
+     * @return array<string, mixed>
+     */
+    private function stripNullsAndEmpties(array $bag): array
+    {
+        $out = [];
+        foreach ($bag as $k => $v) {
+            if ($v === null || $v === '' || (is_string($v) && trim($v) === '')) continue;
+            // Allow numbers (including 0) and non-empty strings.
+            $out[$k] = $v;
+        }
+        return $out;
+    }
 
     /**
      * @return array{0: array<int, array<string, mixed>>, 1: array<int, string>}

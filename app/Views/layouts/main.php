@@ -27,7 +27,7 @@
         </div>
     </header>
 
-    <main class="cf-main">
+    <main class="cf-main <?= esc($mainClass ?? '') ?>">
         <?= $this->renderSection('content') ?>
     </main>
 

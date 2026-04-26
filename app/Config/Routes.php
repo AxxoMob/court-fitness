@@ -24,11 +24,13 @@ $routes->group('coach', static function ($r): void {
     $r->get('plans/new',           'Coach\Plans::new');
     $r->post('plans',              'Coach\Plans::store');
     $r->get('plans/(:segment)',    'Coach\Plans::show/$1');
+    $r->post('plans/(:segment)',   'Coach\Plans::update/$1');
 });
 
 // Player sub-routes.
 $routes->group('player', static function ($r): void {
     $r->get('plans/(:segment)',    'Player\Plans::show/$1');
+    $r->post('plans/(:segment)',   'Player\Plans::update/$1');
 });
 
 // Dev-only: stub SSO issuer. Short-circuits HitCourt for local testing.

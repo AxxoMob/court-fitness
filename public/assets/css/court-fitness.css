@@ -337,7 +337,30 @@ code {
     font-size: 0.8rem;
 }
 
-/* ---------- Plan Builder ---------- */
+/* ---------- Wide-page modifier ----------
+   Plan-card index pages and the inline-grid Plan Builder / show views need
+   to break out of the 640px phablet cap. Mobile stays narrow; ≥768 widens
+   progressively. Plan-card pages: 3-up at ≥992, 2-up at 768-991, 1-up <768.
+   Plan-grid pages: full breathing room across desktop and tablet. */
+
+.cf-main--wide { max-width: 1400px; }
+
+/* ---------- Plan-card responsive grid (per plan_builder_ux.md §2.2) ---------- */
+
+@media (min-width: 768px) {
+    .cf-plan-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--cf-gap-4);
+    }
+}
+@media (min-width: 992px) {
+    .cf-plan-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ---------- Plan Builder / show — inline grid (LOCKED UX, plan_builder_ux.md §1) ---------- */
 
 .cf-plan-builder { padding-bottom: 96px; /* space for sticky save bar */ }
 
@@ -350,40 +373,212 @@ code {
     z-index: 20;
 }
 .cf-save-bar__inner {
-    max-width: 960px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--cf-gap-3) var(--cf-gap-4);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--cf-gap-3);
+    flex-wrap: wrap;
 }
 
-.cf-session-card {
-    background: var(--cf-surface-muted);
+/* Fundamentals strip across the top of new/show grid pages */
+.cf-fundamentals {
+    background: var(--cf-surface);
     border: 1px solid var(--cf-border);
-    border-radius: var(--cf-radius-sm);
-    padding: var(--cf-gap-3);
+    border-radius: var(--cf-radius-md);
+    padding: var(--cf-gap-4);
+    box-shadow: var(--cf-shadow-1);
+    margin-bottom: var(--cf-gap-5);
+}
+.cf-fundamentals__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--cf-gap-3);
+}
+@media (min-width: 768px) {
+    .cf-fundamentals__row { grid-template-columns: repeat(4, 1fr); }
 }
 
-/* Nudge Bootstrap accordion so the orange matches brand */
-.accordion-button:not(.collapsed) {
+/* A "block" — one (training_date, session_period, format) and its rows. */
+.cf-block {
+    background: var(--cf-surface);
+    border: 1px solid var(--cf-border);
+    border-radius: var(--cf-radius-md);
+    box-shadow: var(--cf-shadow-1);
+    margin-bottom: var(--cf-gap-4);
+    overflow: hidden;
+}
+.cf-block__head {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr auto;
+    gap: var(--cf-gap-3);
+    align-items: center;
+    padding: var(--cf-gap-3) var(--cf-gap-4);
+    background: var(--cf-surface-muted);
+    border-bottom: 1px solid var(--cf-border);
+}
+@media (max-width: 767.98px) {
+    .cf-block__head {
+        grid-template-columns: auto 1fr;
+        row-gap: var(--cf-gap-2);
+    }
+    .cf-block__head .cf-block__head-cell {
+        grid-column: span 2;
+    }
+}
+.cf-block__head-icon {
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--cf-primary-tint);
     color: var(--cf-primary-dark);
-    background-color: var(--cf-primary-tint);
+    border: 1px solid var(--cf-primary);
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
 }
-.accordion-button:focus {
-    box-shadow: 0 0 0 0.15rem rgba(242, 101, 34, 0.25);
+.cf-block__head-icon:hover { background: var(--cf-primary); color: #fff; }
+.cf-block__body { padding: var(--cf-gap-3) var(--cf-gap-4); }
+
+/* A row inside a block — one exercise. */
+.cf-row {
+    display: grid;
+    grid-template-columns: auto 220px 1fr auto;
+    gap: var(--cf-gap-3);
+    align-items: end;
+    padding: var(--cf-gap-3) 0;
+    border-bottom: 1px dashed var(--cf-border);
+}
+.cf-row:last-child { border-bottom: 0; }
+
+.cf-row__catlabel { font-weight: 500; color: var(--cf-ink-muted); font-size: 0.85rem; }
+
+.cf-cells {
+    display: grid;
+    gap: var(--cf-gap-2);
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+.cf-cell { display: flex; flex-direction: column; gap: 2px; }
+.cf-cell__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--cf-ink-subtle);
+}
+.cf-cell__inputs { display: flex; gap: 4px; align-items: stretch; }
+.cf-cell__inputs input {
+    flex: 1; min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--cf-border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: var(--cf-surface);
+    color: var(--cf-ink);
+}
+.cf-cell__inputs input:focus {
+    outline: none;
+    border-color: var(--cf-primary);
+    box-shadow: 0 0 0 2px rgba(242, 101, 34, 0.18);
+}
+.cf-cell__inputs input.cf-target { background: var(--cf-surface-muted); }
+.cf-cell__inputs input.cf-actual { background: #FBFEF8; border-color: #C8E6C9; }
+.cf-cell__inputs input[readonly] { background: #F2EFEC; color: var(--cf-ink-muted); cursor: default; }
+.cf-cell__inputs input.cf-actual:disabled { background: #F2EFEC; }
+.cf-cell__pair-tag {
+    font-size: 0.65rem;
+    color: var(--cf-ink-subtle);
+    line-height: 1;
+    padding-top: 4px;
 }
 
-/* ---------- Tablet and up ---------- */
-
-@media (min-width: 720px) {
-    .cf-plan-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+/* Mobile collapse: row becomes a stacked card. */
+@media (max-width: 767.98px) {
+    .cf-row {
+        grid-template-columns: 1fr auto;
+        gap: var(--cf-gap-2);
+        background: var(--cf-surface);
+        padding: var(--cf-gap-3);
+        margin-bottom: var(--cf-gap-2);
+        border: 1px solid var(--cf-border);
+        border-radius: var(--cf-radius-sm);
     }
-    .cf-plan-builder {
-        max-width: 880px;
-        margin: 0 auto;
-    }
+    .cf-row__addremove { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+    .cf-row__catlabel { grid-column: 1 / span 2; }
+    .cf-row__sub { grid-column: 1 / span 2; }
+    .cf-row__cells { grid-column: 1 / span 2; }
+    .cf-cells { grid-template-columns: repeat(2, 1fr); }
 }
+
+.cf-row__addremove {
+    display: flex; gap: 4px;
+}
+.cf-row__addremove button {
+    width: 32px; height: 32px;
+    border: 1px solid var(--cf-border);
+    background: var(--cf-surface);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--cf-ink-muted);
+}
+.cf-row__addremove button:hover { background: var(--cf-primary-tint); color: var(--cf-primary-dark); }
+.cf-row__addremove button.cf-row__remove:hover { background: #FFE0E0; color: var(--cf-danger); border-color: var(--cf-danger); }
+
+.cf-audit {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    color: var(--cf-ink-subtle);
+    font-size: 0.75rem;
+}
+
+.cf-add-block {
+    display: block;
+    width: 100%;
+    border: 2px dashed var(--cf-border);
+    background: transparent;
+    color: var(--cf-ink-muted);
+    padding: var(--cf-gap-4);
+    border-radius: var(--cf-radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.cf-add-block:hover {
+    border-color: var(--cf-primary);
+    color: var(--cf-primary-dark);
+    background: var(--cf-primary-tint);
+}
+
+.cf-empty-blocks {
+    text-align: center;
+    color: var(--cf-ink-subtle);
+    padding: var(--cf-gap-5) var(--cf-gap-4);
+    font-style: italic;
+}
+
+/* Coach/Player show summary header: more compact than new mode. */
+.cf-plan-summary {
+    display: flex; flex-wrap: wrap;
+    gap: var(--cf-gap-2) var(--cf-gap-4);
+    align-items: baseline;
+    padding: var(--cf-gap-3) 0;
+    margin-bottom: var(--cf-gap-4);
+    border-bottom: 1px solid var(--cf-border);
+}
+.cf-plan-summary__title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+}
+.cf-plan-summary__pill {
+    background: var(--cf-primary-tint);
+    color: var(--cf-primary-dark);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+.cf-plan-summary__sub { color: var(--cf-ink-muted); font-size: 0.95rem; }
