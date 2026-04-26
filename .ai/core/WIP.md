@@ -4,9 +4,22 @@
 
 ## Current Status
 
-**Session 6 closed (2026-04-26) — UI rebuilt as inline grid; both parties can now log actuals end-to-end.** All four MUST items from `prompt_for_session_6.md` (rebuilt Plan Builder grid; coach + player show views as editable grids on a shared partial; new `POST /coach/plans/{obf}` + `POST /player/plans/{obf}` with no-clobber guarantee + role-checks + ownership-checks; redirect-after-create lands on the editable grid with new flash text) plus both polish items (5 — responsive plan-card grid 3/2/1-up + `.cf-main--wide` page modifier; 6 — audit display "Logged by Coach Rajat · 2m ago" rendered under each logged actual). The wide inline grid matches `plan_builder_ux.md` §1's LTAT screen transcription; mobile collapses each row to a stacked card via CSS media query at <768px (single template, no device sniff).
+**Session 6 closed (2026-04-26) AND owner-driven post-close iteration completed the same evening.** Session 6's original close at `310c07f` shipped a working inline-grid Plan Builder, but visual sign-off in the same evening turned up real layout issues. Five post-close commits over 2026-04-26 evening rebuilt the grid to match the LTAT live system cell-for-cell, then the owner approved and **sealed the Plan Builder UI** at `0ed4928`.
+
+**Five sealed files added 2026-04-26** (was 1 — only the framework). New seals: `app/Views/coach/plans/_grid.php`, `app/Views/coach/plans/new.php`, `public/assets/js/plan-builder.js`, the SEALED-bracketed section of `public/assets/css/court-fitness.css`, and `.ai/core/plan_builder_ux.md`. Total sealed files: 6. See `.ai/core/SEALED_FILES.md`.
+
+**Owner's call-off at end of 2026-04-26 (verbatim):** "This design should be our base, and we should build the mobile view which should dynamically adjust this web view, as per the device size. I am not feeling too well now, hence I must take a break." Session 7 picks up the mobile-responsive pass tomorrow. **The desktop layout is FROZEN by seal**; mobile work happens in CSS rules below the SEALED-END marker, OR the sealed section is unsealed first via §5.3 protocol.
+
+The wide inline grid matches `plan_builder_ux.md` §1's LTAT screen transcription. Cell counts per format: **Cardio 10, Weights 4, Agility 6** — all typable; greying is presentational only. Cascade: explicit Format(block) → Category(row) → Sub-category(row), two dropdowns at the row level (was a single grouped dropdown — owner directed the switch because Agility's flat list would be unwieldy). Notes textarea sits at the bottom of the page. Mobile collapse: each exercise row → stacked card with cells in a 2-col grid, threshold <992px (Option A). No horizontal scroll at any breakpoint.
 
 **No-clobber rule is unit-tested.** `PlanEntriesModel::decideActualUpdate()` is a pure function — both `Coach\Plans::update` and `Player\Plans::update` funnel through it, so there's exactly one place where the rule can be wrong. Five unit tests cover: clean first save, empty bag with no existing actual (write nulls), **load-bearing no-clobber case** (empty bag + existing actual → preserve, return null), non-empty bag overwriting existing (= editing, not no-clobber), and UTF-8 round-trip on the JSON path.
+
+**Commits 2026-04-26 evening (post-Session-6-close iteration):**
+- `0da18d5` — Sibling `.md` notes for the 5 LTAT screenshots in `.ai/research-notes/screenshots/` (HL-13 / new CLAUDE.md §6.2 artifact #7 follow-through; the screenshots had been on disk all day but the binary-artifact rule wasn't honoured until this commit).
+- `f9cc676` — LTAT 10/4/6 cell layout. `CELLS_BY_FORMAT` rebuilt; CSS rewritten as dense single-line rows with horizontal cell strip, no horizontal scroll, <992px stacked-card collapse.
+- `d7664eb` — Notes textarea moved to bottom; explicit Format → Category → Sub-category cascade per row.
+- `0ed4928` — **SEAL** of the Plan Builder UI (5 entries to `SEALED_FILES.md`).
+- `<close>` — this addendum + Session 7 prompt + WIP/SESSION_LOG updates.
 
 **Three Tier-1 docs edits landed in commit `fb9a420`** at session open, owner-approved at "proceed":
 - BRIEFING.md line 3: "Coaches build *multiple* weekly training plans" (one-word owner correction).
