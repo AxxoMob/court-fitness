@@ -4,18 +4,22 @@
 
 ## Current Status
 
-**Session 5 closed — BUT UI must be rebuilt in Session 6.** After Session 5's close commit, the owner reviewed the Plan Builder and identified that the UI/UX is materially wrong:
-- Modal-driven add-exercise flow forces ~6 taps per exercise; the correct pattern is an **inline row in a wide grid** (like the live LTAT system the owner had shown in screenshots with Session 1, which I missed because the screenshots were never saved to the repo — see HL-13).
-- Mobile-first was the wrong default; the primary workstation is a laptop/iPad in the gym while the player exercises. Mobile is a travel-mode fallback.
-- Save redirects to a read-only badge view. Should redirect to the SAME editable grid with targets filled and actuals editable, so the coach can immediately start punching values during a session.
-- BRIEFING.md clearly states **both coach AND player** record actuals (line 10); I built as if only the player did. Owner explicitly called this out as documented and missed.
+**Session 6 closed (2026-04-26) — UI rebuilt as inline grid; both parties can now log actuals end-to-end.** All four MUST items from `prompt_for_session_6.md` (rebuilt Plan Builder grid; coach + player show views as editable grids on a shared partial; new `POST /coach/plans/{obf}` + `POST /player/plans/{obf}` with no-clobber guarantee + role-checks + ownership-checks; redirect-after-create lands on the editable grid with new flash text) plus both polish items (5 — responsive plan-card grid 3/2/1-up + `.cf-main--wide` page modifier; 6 — audit display "Logged by Coach Rajat · 2m ago" rendered under each logged actual). The wide inline grid matches `plan_builder_ux.md` §1's LTAT screen transcription; mobile collapses each row to a stacked card via CSS media query at <768px (single template, no device sniff).
 
-**What's being preserved:** backend (models, routes, controllers except view hookups), AuthFilter, CSRF, IdObfuscator, DB schema, Falcon theme work, tests. All green.
-**What's being rebuilt in Session 6:** Plan Builder view + JS (inline grid, no modal), Coach plan-show view (editable grid), Player plan-show view (editable grid, target-locked/actual-editable), responsive breakpoints, redirect-after-save target, plus 2 new POST routes (`/coach/plans/{obf}`, `/player/plans/{obf}`).
+**No-clobber rule is unit-tested.** `PlanEntriesModel::decideActualUpdate()` is a pure function — both `Coach\Plans::update` and `Player\Plans::update` funnel through it, so there's exactly one place where the rule can be wrong. Five unit tests cover: clean first save, empty bag with no existing actual (write nulls), **load-bearing no-clobber case** (empty bag + existing actual → preserve, return null), non-empty bag overwriting existing (= editing, not no-clobber), and UTF-8 round-trip on the JSON path.
 
-Canonical UX locked in `.ai/core/plan_builder_ux.md` — every agent from here on reads this BEFORE any UI work. HL-13 now requires design artifacts to land in `.ai/research-notes/screenshots/` the moment they're shared in chat.
+**Three Tier-1 docs edits landed in commit `fb9a420`** at session open, owner-approved at "proceed":
+- BRIEFING.md line 3: "Coaches build *multiple* weekly training plans" (one-word owner correction).
+- BRIEFING.md: new standalone "Who records actuals — both sides, equally" paragraph above the bullets, with explicit reference to HL-13. The skim-past failure that caused Session 5's rebuild can no longer happen via that reading path.
+- CLAUDE.md §6.2 artifact #7: extended with a binary-design-artifact rule. Every screenshot/Figma/sketch/video shared in chat MUST land in `.ai/research-notes/screenshots/` or `/design/` within the same session, with a sibling `.md` note (what / who / when / which feature / spoken context). HL-13 is now codified as a standing rule.
 
-Test suite at 23/23 at Session 5 close. Commits: `e86a658` (conformance) → `ea3f40a` (pre-work) → `0303225` (Plan Builder — wrong UI) → `d153c9a` (AuthFilter) → `5c6b06e` (Session 5 close) → `<next>` (post-close UX correction).
+Test suite at 28/28 (was 23/23) — five new tests in `tests/unit/PlanEntryActualUpdateTest.php`. 63 assertions.
+
+**Visual eyeball deferred to owner.** The dev box can render HTML and curl-verify status codes, but Chrome DevTools mobile emulation (375 / 768 / 992 / 1280 px) is the canonical visual check and only the human can execute it. Screenshots after eyeball go to `.ai/research-notes/screenshots/session6-*.png` with sibling `.md` notes per HL-13. The session is closed code-wise; visual sign-off is the next step the owner takes when reviewing.
+
+Commits this session: `ce98deb` (Conformance Check) → `fb9a420` (Tier-1 docs edits) → `1480743` (Plan Builder rebuild — views/JS/controllers/routes/CSS) → `528c4be` (no-clobber decision extracted + 5 unit tests) → `<this close commit>`.
+
+**Session 5 closed cleanly on 2026-04-23** with the Plan Builder shipped end-to-end backend-correct but UI wrong (modal-driven mobile-first instead of inline wide grid). HL-13 captured the root cause: design screenshots from Session 1 were never saved to the repo, so a fresh agent rebuilt the UI from lossy prose. Session 6 fixed the UI; the binary-artifact rule prevents recurrence.
 
 **Session 4 closed cleanly (2026-04-23).** Architecture retrospective — scope pivoted mid-way from "Plan Builder" to "implement the 7 architecture improvements." Zero feature code; sealed framework untouched; all additions in CLAUDE.md and `.ai/core/templates/`. Commits: `30fb22b` + `5a4d81e`.
 
@@ -32,6 +36,38 @@ Test suite at 23/23 at Session 5 close. Commits: `e86a658` (conformance) → `ea
 - SEALED_FILES.md updated with live watchlist.
 
 **Owner directive passed to Session 5 (post-close, 2026-04-23):** HitCourt-family visual cohesion. All Rajat's projects run Falcon theme — court-fitness's CSS should match Falcon's font stack exactly (see `prompt_for_session_5.md` for the full `font-family` string + 16.8px base size). Falcon reference: https://prium.github.io/falcon/v2.8.2/default/index.html.
+
+## This Session's Scope (Session 6, 2026-04-26) — ALL 6 ITEMS DONE
+
+**In scope — DONE:**
+- ✅ **Owner-approved Tier-1 docs (commit `fb9a420`)** — small but high-leverage: BRIEFING.md gains "multiple" + a standalone "Who records actuals" paragraph; CLAUDE.md §6.2 artifact #7 codifies HL-13's binary-design-artifact rule.
+- ✅ **Inline-grid Plan Builder (commit `1480743`)** — `app/Views/coach/plans/_grid.php` is the new shared partial. `public/assets/js/plan-builder.js` rewritten as inline-row controller (no modal, no accordion). Blocks group rows by (date, period, format); rows have category-label + sub-category dropdown + type-specific cells (Cardio: max_hr_pct/duration_min · Weights: sets/reps/weight/rest_sec · Agility: reps/rest_sec). Sub-category options optgroup'd by category, scoped to the block's format. Submit serialises to `entries_json` with optional `id` for update flow.
+- ✅ **Coach + Player show views become editable grids (commit `1480743`)** — both `app/Views/coach/plans/show.php` and `app/Views/player/plans/show.php` mount the same `_grid.php` partial with `mode=coach-edit` / `mode=player-edit`. Coach: targets + actuals editable. Player: targets readonly client-side AND silently dropped server-side.
+- ✅ **POST /coach/plans/{obf} + POST /player/plans/{obf} (commit `1480743`)** — routes added to `app/Config/Routes.php`; `Coach\Plans::update` + `Player\Plans::update` actions added. CSRF + AuthFilter + role check + ownership check on every request.
+- ✅ **No-clobber decision extracted + 5 unit tests (commit `528c4be`)** — `PlanEntriesModel::decideActualUpdate()` is now the pure function both controllers funnel through. Five tests in `tests/unit/PlanEntryActualUpdateTest.php` cover clean-first-save, empty-bag-no-existing, **load-bearing no-clobber case (empty bag + existing actual → preserve, return null)**, edit-overwrite, and UTF-8 round-trip.
+- ✅ **Redirect-after-create lands on editable grid (commit `1480743`)** — `Coach\Plans::store` flash text now reads "Plan saved. You can now type actuals here." Coach redirects to `/coach/plans/{obf}` which IS the editable grid.
+- ✅ **Responsive widths, single template (commit `1480743`)** — `.cf-main--wide` (max-width 1400px) opted into by Coach\Plans::index, ::new, ::show + Player\Plans::show. `.cf-plan-grid` 3-up at ≥992px / 2-up at 768-991 / 1-up <768. Inline grid collapses to per-row stacked cards <768px via media query on `.cf-row`. Layout (`app/Views/layouts/main.php`) accepts `$mainClass`.
+- ✅ **Audit display (commit `1480743`)** — Coach\Plans::show + Player\Plans::show JOIN `plan_entries.actual_by_user_id → users` for `audit_user_name` + `audit_role`. plan-builder.js renders "Logged by Coach Rajat · 2m ago" / "Logged by Rohan · 2m ago" under any row whose actual has been logged.
+
+**Smoke verified via curl (terminal-only):**
+- `GET /coach/plans/new` → 200, `data-cf-mode="new"`, `can_edit_target=true`, `can_edit_actual=false`, taxonomy JSON inlined.
+- `GET /coach/plans/Y2Y6MQ` → 200, `data-cf-mode="coach-edit"`, plan summary pill renders, 3 demo entries hydrated.
+- `GET /player/plans/Y2Y6MQ` → 200, `data-cf-mode="player-edit"`, `can_edit_target=false`, `can_edit_actual=true`.
+- `POST /coach/plans/Y2Y6MQ` (no CSRF) → 403. `POST /player/plans/Y2Y6MQ` (no CSRF) → 403. `POST /coach/plans/Y2Y6MQ` (no auth, no CSRF) → 403. CSRF + AuthFilter + role checks all alive.
+- 28/28 unit tests passing (was 23/23 — 5 new for no-clobber). 63 assertions.
+
+**In scope — DEFERRED (visual eyeball + screenshots can only be done in browser; the dev box is terminal-only):**
+- 👁️ Browser DevTools eye-test at 375 / 768 / 992 / 1280 px. Owner runs Chrome on Windows; the human is the canonical visual checker per HL-13 / `prompt_for_session_6.md` §"Known Risks #3".
+- 📸 Screenshots of new desktop grid + mobile stacked view → `.ai/research-notes/screenshots/session6-*.png` with sibling `.md` notes per HL-13 + CLAUDE.md §6.2 artifact #7. Owner takes them after eyeball.
+- 🐛 End-to-end POST update flow with valid CSRF token (form-fill via Chrome). Same reason — terminal-only dev box can't execute the form-submit dance cleanly.
+
+**Out of scope (deferred to Session 7+):**
+- PWA manifest + service worker.
+- Per-type server-side validation of `target_json` / `actual_json` shapes.
+- Prettier target-badge labels beyond what the inline grid shows natively.
+- Plan Builder "Edit mode" as a separate URL — eliminated; the show URL IS the editable grid.
+- Migrations / schema / catalogue changes.
+- Rich analytics, charts, progression views, assessments kernel, tennis-specific testing catalogue, training-load / ACWR, fitness directory, export, admin real UI, multi-language, Capacitor wrap.
 
 ## This Session's Scope (Session 5, 2026-04-23) — ALL DONE
 
@@ -117,11 +153,21 @@ SSO foundation: composer install + firebase/php-jwt ^7.0, JwtValidator + 10 unit
 
 ## Blockers
 
-**None functional.** Session 6 is unblocked. Scope: **rebuild Session 5's UI** per `.ai/core/plan_builder_ux.md` (LOCKED by owner 2026-04-23). Inline wide grid, both coach and player can edit actuals, responsive not mobile-first, save redirects to editable grid. Full detail: `.ai/.daily-docs/24 Apr 2026/prompt_for_session_6.md`.
+**None.** Session 7 is unblocked. The owner's next visual eyeball pass at four DevTools breakpoints + tap-test on a real phone is the only thing standing between Session 6 and "demo ready" — but that is a sign-off step, not a blocker on code.
 
 **Two Tier-1 edits — owner-approved at Session 6 open (2026-04-26) and applied:**
 - ✅ BRIEFING.md line 3 corrected to "Coaches build *multiple* weekly training plans" + new standalone "Who records actuals" paragraph that calls out the both-sides equality and references HL-13. No agent can skim past it now.
 - ✅ CLAUDE.md §6.2 artifact #7 extended with a binary-artifact promotion paragraph: every screenshot, Figma export, sketch, reference image, video shared in chat lands in `.ai/research-notes/screenshots/` or `.ai/research-notes/design/` within the same session, with a sibling `.md` note (what / who / when / which feature / spoken context). HL-13 is now codified.
+
+## Noticed this Session 6, for Future (NOT done here)
+
+- **Demo seed `target_json` uses `weight_kg` instead of canonical `weight`.** The Session 3 demo seed wrote `{"sets":4,"reps":8,"weight_kg":60,"rest_sec":120}` for the Bench Press entry, but `exercise_json_shapes.md` says the key is `weight` (with the `kg|lb` unit on the parent plan, not per-entry). The new Plan Builder JS won't pre-populate the Weight cell for that demo row because the key doesn't match. Cosmetic for the demo; the underlying schema is correct. Fix at next demo seed refresh: rename `weight_kg` → `weight` in the seeder.
+- **Session 6 introduced a single-page in-place update — no AJAX per-row save.** That's the right call for Session 6 simplicity (HL-12's CSRF-token-rotation complexity stays asleep), but eventually a coach in the gym typing actuals will want autosave-on-blur per row. Sprint 02 candidate.
+- **Cells per sub-category (vs per-format) is not yet implemented.** `plan_builder_ux.md` §2.4 hints that the live cell set may vary at sub-category granularity (LTAT screenshot shows greyed-out cells for non-applicable measures). Session 6 ships the simpler per-format model (Cardio = Max HR%/Duration, etc.), which is what `exercise_json_shapes.md` already canonicalises. If/when the owner confirms per-sub-category variance, extend `CELLS_BY_FORMAT` in plan-builder.js to a `CELLS_BY_SUBCATEGORY` overlay map. Open question for owner; flagged but not blocking.
+- **Block-level Format selector lets the user pick a Cardio sub-category in a Cardio block, then change the block to Weights.** plan-builder.js silently clears affected rows' (cat, sub, target) when the block-format changes. UX could be friendlier: confirm before nuking, or block the change if rows have actuals. Sprint 02 polish.
+- **Audit display uses approximate "2m ago" relative times that go stale on a long-open page.** No live tick. Acceptable for a refresh-driven UI; revisit if/when a SPA shell lands.
+- **`Coach\Plans::update` ignores submitted `training_date` mismatches (logs a warning, doesn't reject).** Reason: Session 6 doesn't move existing entries between dates — the date is set at create-time and the update flow only mutates target_json + actual_json. If a future session adds drag-to-reschedule, the `applyUpdates()` flow needs to honour `training_date` as an updatable field.
+- **No integration test scaffold.** All five new tests in `PlanEntryActualUpdateTest` are pure-function. CI4 has `CIDatabaseTestCase` for DB-touching tests; useful when Session 7 hardens target_json/actual_json shapes server-side. Out of Session 6 scope.
 
 ## Noticed this Session 5, for Future (NOT done here)
 
@@ -150,6 +196,54 @@ SSO foundation: composer install + firebase/php-jwt ^7.0, JwtValidator + 10 unit
 - URL shape for plan IDs — plain CI4 (`/player/plans/42`) vs ltat_fitness-style base64 (`/player/plans/MCMjlzA=`). Session 4 default: plain CI4 unless owner says otherwise.
 - Training Target dropdown list — 7 default items in place; owner will review in Session 5 once the Plan Builder form renders.
 - Whether to rename `.ai2/` to something self-describing (owner's call).
+
+## Verification Commands — results at end of Session 6
+
+```
+$ git log --oneline -7
+<close>   sprint-1: session 6 close — 7 artifacts (Plan Builder rebuilt, no-clobber tested)
+528c4be   sprint-1: extract no-clobber decision + 5 unit tests on actual_json
+1480743   sprint-1: rebuild Plan Builder + show views as inline editable grid (session 6)
+fb9a420   docs: owner-approved Tier-1 edits to prevent HL-13 recurrence
+ce98deb   sprint-1: session 6 open — Framework Conformance Check committed
+39fad8d   docs: add owner directive to Session 6 prompt — no skimming permitted
+ecc49e9   New Session
+
+$ git status      → clean at session close
+
+$ ./vendor/bin/phpunit tests/unit/
+  28 tests, 63 assertions — all pass
+  (10 JwtValidator + 9 IdObfuscator + 2 HealthTest + 2 AuthFilter + 5 PlanEntryActualUpdate)
+
+$ php spark migrate:status
+  3 migrations applied — no new migrations this session
+
+$ php spark serve --port 8080   (ran during session for smoke tests)
+
+Smoke-tested URL sequence (curl-based, terminal-only):
+  /dev/sso-stub?as=coach   → 302 → /coach (200, dashboard)
+  /coach/plans/new         → 200, inline grid renders
+                            ✓ data-cf-mode="new"
+                            ✓ can_edit_target=true, can_edit_actual=false
+                            ✓ taxonomy JSON (3 types + 12 categories + 204 subs) inlined
+                            ✓ #cf-blocks empty, #cf-add-block visible
+                            ✓ <main class="cf-main cf-main--wide"> (page-modifier opted in)
+  /coach/plans/Y2Y6MQ      → 200, mode=coach-edit
+                            ✓ plan summary pill renders ("Endurance")
+                            ✓ 3 demo entries hydrated into the inline JSON
+  /player/plans/Y2Y6MQ     → 200, mode=player-edit
+                            ✓ can_edit_target=false, can_edit_actual=true
+                            ✓ "Your week with Coach Rajat Kapoor" rendered
+
+CSRF + AuthFilter on new POST routes:
+  POST /coach/plans/Y2Y6MQ (no token, no auth)  → 403 (CSRF)
+  POST /coach/plans/Y2Y6MQ (no token, w/ auth)  → 403 (CSRF)
+  POST /player/plans/Y2Y6MQ (no token, w/ auth) → 403 (CSRF)
+  Per-route ownership + role check verified by code inspection (server-side
+  re-verification before any DB write — never trust the client).
+
+Test invariant: count went UP (23 → 28) — no tests deleted.
+```
 
 ## Verification Commands — results at end of Session 5
 
