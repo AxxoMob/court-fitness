@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Player;
 
 use App\Controllers\BaseController;
+use App\Models\PlanEntriesModel;
 use App\Support\IdObfuscator;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -132,21 +133,17 @@ final class Plans extends BaseController
                 $aBag = is_array($e['actual']) ? $e['actual'] : [];
                 $aBag = $this->stripNullsAndEmpties($aBag);
 
-                $update = ['updated_at' => date('Y-m-d H:i:s')];
-                if ($aBag === []) {
-                    if ($row['actual_json'] !== null) {
-                        // Empty submitted actual but DB has one — preserve (no-clobber).
-                        continue;
-                    }
-                    $update['actual_json']       = null;
-                    $update['actual_by_user_id'] = null;
-                    $update['actual_at']         = null;
-                } else {
-                    $update['actual_json']       = json_encode($aBag, JSON_UNESCAPED_UNICODE);
-                    $update['actual_by_user_id'] = $playerId;
-                    $update['actual_at']         = date('Y-m-d H:i:s');
+                $actualDiff = PlanEntriesModel::decideActualUpdate(
+                    $row['actual_json'],
+                    $aBag,
+                    $playerId,
+                    date('Y-m-d H:i:s'),
+                );
+                if ($actualDiff === null) {
+                    continue; // no-clobber: existing actuals preserved
                 }
 
+                $update = ['updated_at' => date('Y-m-d H:i:s')] + $actualDiff;
                 $db->table('plan_entries')->where('id', $entryId)->update($update);
                 $updated++;
             }

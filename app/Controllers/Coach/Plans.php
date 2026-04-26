@@ -314,19 +314,14 @@ final class Plans extends BaseController
                 if ($canUpdateActuals && array_key_exists('actual', $e)) {
                     $aBag = is_array($e['actual']) ? $e['actual'] : [];
                     $aBag = $this->stripNullsAndEmpties($aBag);
-                    if ($aBag === []) {
-                        // No-clobber: empty submitted actual but row already has one → preserve.
-                        if ($row['actual_json'] !== null) {
-                            // skip writing; preserves existing actual_json
-                        } else {
-                            $update['actual_json']       = null;
-                            $update['actual_by_user_id'] = null;
-                            $update['actual_at']         = null;
-                        }
-                    } else {
-                        $update['actual_json']       = json_encode($aBag, JSON_UNESCAPED_UNICODE);
-                        $update['actual_by_user_id'] = $savedByUserId;
-                        $update['actual_at']         = date('Y-m-d H:i:s');
+                    $actualDiff = PlanEntriesModel::decideActualUpdate(
+                        $row['actual_json'],
+                        $aBag,
+                        $savedByUserId,
+                        date('Y-m-d H:i:s'),
+                    );
+                    if ($actualDiff !== null) {
+                        $update += $actualDiff;
                     }
                 }
 

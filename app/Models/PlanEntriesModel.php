@@ -58,4 +58,59 @@ final class PlanEntriesModel extends Model
         'fitness_subcategory_id' => 'required|is_natural_no_zero',
         'sort_order'             => 'required|is_natural',
     ];
+
+    /**
+     * Decide what (if anything) to write back when a saver POSTs an
+     * `actual` bag for an entry that already exists in the DB.
+     *
+     * The no-clobber rule (Session 6 prompt §"Known Risks #2",
+     * plan_builder_ux.md §3.3): if the saver's submitted actual bag is
+     * empty AND the row already has actual_json IS NOT NULL, the existing
+     * actuals must be preserved — do NOT overwrite with NULL.
+     *
+     * Pure function — no DB access — so it is unit-testable in isolation.
+     *
+     * @param string|null         $existingActualJson  Current value of plan_entries.actual_json
+     *                                                  for this row, or NULL.
+     * @param array<string,mixed> $submittedBag        The saver's submitted actual fields,
+     *                                                  already stripped of nulls and empties.
+     * @param int                 $savedByUserId       The user who is saving (player or coach).
+     * @param string              $nowDatetime         Current datetime in 'Y-m-d H:i:s' (passed
+     *                                                  in for testability).
+     *
+     * @return array<string, mixed>|null
+     *   Returns the column → value diff to apply via UPDATE, or null when nothing
+     *   should change (existing actual is preserved). Possible keys:
+     *     - actual_json        : string|null
+     *     - actual_by_user_id  : int|null
+     *     - actual_at          : string|null
+     */
+    public static function decideActualUpdate(
+        ?string $existingActualJson,
+        array $submittedBag,
+        int $savedByUserId,
+        string $nowDatetime,
+    ): ?array {
+        // Empty submission, but DB has actuals — PRESERVE (no-clobber).
+        if ($submittedBag === [] && $existingActualJson !== null) {
+            return null;
+        }
+
+        // Empty submission AND no prior actual — write explicit NULLs (idempotent no-op,
+        // but we set the columns just in case the saver wants to "clear" any partial state).
+        if ($submittedBag === []) {
+            return [
+                'actual_json'       => null,
+                'actual_by_user_id' => null,
+                'actual_at'         => null,
+            ];
+        }
+
+        // Non-empty submission — write the new bag and stamp the saver.
+        return [
+            'actual_json'       => json_encode($submittedBag, JSON_UNESCAPED_UNICODE),
+            'actual_by_user_id' => $savedByUserId,
+            'actual_at'         => $nowDatetime,
+        ];
+    }
 }
