@@ -290,15 +290,11 @@
             body.appendChild(renderRow(block, blockIdx, row, rowIdx));
         });
 
-        const addRow = document.createElement('button');
-        addRow.type = 'button';
-        addRow.className = 'cf-add-row';
-        addRow.textContent = '+ Add exercise';
-        addRow.addEventListener('click', () => {
-            addRowToBlock(blockIdx);
-            render();
-        });
-        body.appendChild(addRow);
+        // The redundant "+ Add exercise" button at the bottom of each block was
+        // removed 2026-04-27 (Fix 4, owner-approved): the row-level [+] icon
+        // already inserts a new exercise row after the current one — clearer
+        // affordance, and inserts in the middle of a block when the coach wants
+        // to. Owner: "If this is correct then we can remove 'Add Exercise'."
 
         return wrap;
     }

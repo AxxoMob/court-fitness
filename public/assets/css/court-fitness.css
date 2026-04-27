@@ -445,7 +445,7 @@ code {
     display: none;   /* labels not shown in dense LTAT-style header; titles via title attr */
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
     .cf-block__head {
         grid-template-columns: 36px 1fr 1fr;
         row-gap: var(--cf-gap-2);
@@ -454,10 +454,18 @@ code {
     .cf-block__head .cf-block__head-cell:nth-child(5) {
         grid-column: span 1;
     }
+    /* Fix 2 (owner-approved 2026-04-27): icon spans both rows so col 1 row 2
+       isn't visually empty when the 5 children wrap into 2 rows × 3 cols. */
+    .cf-block__head-icon {
+        grid-row: 1 / span 2;
+        align-self: start;
+    }
 }
 @media (max-width: 575.98px) {
     .cf-block__head { grid-template-columns: 36px 1fr; }
     .cf-block__head .cf-block__head-cell { grid-column: 2; }
+    /* On very narrow phones the head goes full-stack; reset the row-span. */
+    .cf-block__head-icon { grid-row: auto; }
 }
 
 .cf-block__head-icon {
@@ -572,22 +580,9 @@ code {
     font-style: italic;
 }
 
-/* Add-row button at the bottom of each block's body (adds another exercise row). */
-.cf-add-row {
-    display: inline-block;
-    margin: var(--cf-gap-2) var(--cf-gap-3) var(--cf-gap-3);
-    padding: 4px 12px;
-    border: 1px solid var(--cf-primary);
-    border-radius: 4px;
-    background: #fff;
-    color: var(--cf-primary-dark);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-}
-.cf-add-row:hover { background: var(--cf-primary-tint); }
-
-/* "+ Add training date / session" — adds a NEW Training Date block at the bottom. */
+/* "+ Add training date / session" — adds a NEW Training Date block at the bottom.
+   The per-block "+ Add exercise" button was removed 2026-04-27 (Fix 4, owner-
+   approved); the row-level [+] icon already does this job. */
 .cf-add-block {
     display: block;
     width: 100%;
@@ -633,11 +628,19 @@ code {
 }
 .cf-plan-summary__sub { color: var(--cf-ink-muted); font-size: 0.95rem; }
 
-/* ---------- Mobile / narrow tablet collapse (<992px, Option A per owner 2026-04-26) ----------
+/* ---------- Mobile / narrow tablet / iPad-landscape collapse (<1200px) ----------
    Each exercise row becomes a stacked card. Cells go to a 2-column grid. The
    compound block header rewraps to two rows. NO horizontal scroll at any width.
+
+   Threshold raised from <992px to <1200px on 2026-04-27 (Fix 1, owner-approved):
+   "Yes please go ahead with (B), Apply Fix 1 & Fix 2, skip Fix 3 — My logic,
+   don't try to fix what's not broken."
+   Reason: at 992px the Cardio cell strip (10 cells × 72px min = 774px) overflows
+   the 556px available — confirmed by owner's session7-992px.png screenshot which
+   shows only 7 of 10 cells visible. Collapsing to stacked-card mode through the
+   1024-1199 iPad-landscape range also benefits touch input.
 */
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
     .cf-row {
         grid-template-columns: auto 1fr;
         grid-template-areas:
