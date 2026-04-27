@@ -66,6 +66,36 @@ Modifying a sealed file without owner approval is a **critical framework violati
 
 ---
 
+## app/Views/coach/plans/index.php
+
+- **Sealed by:** Owner (Rajat Kapoor) — explicit chat directive 2026-04-27 round 6 ("Once done, this view should be sealed. Or at least that part of the code must be sealed and should not be changed by any incoming AI Agent unless specified to do so"), after visual sign-off on the rebuilt plans-index page (filters, format chips, fixed cards, "+ New Plan" button at top-right).
+- **Sealed on:** 2026-04-27 (Sprint 01 Session 7)
+- **Reason:** The coach's plans listing — top-of-app for any returning coach. Five iterations of changes during Session 7 to land the layout the owner approved. Filter strip (Year / Week Of From-To / Player), fixed-size cards with format chips and ellipsis-truncated Target chip, "+ New Plan" button in the header, no bottom-of-page CTA, capitalised heading text per the convention "Start with Capital Letter when not a sentence." Sealed alongside the player mirror (`player/dashboard.php`) and the plans-index CSS section as one contract.
+- **Unsealing requires:** Owner approval in chat per AI_AGENT_FRAMEWORK.md §5.3.
+- **Related sessions/KEs:** Sprint 01 Session 7 (2026-04-27 — `a86d1f8` rebuild + this commit's button-move + cap).
+
+---
+
+## app/Views/player/dashboard.php
+
+- **Sealed by:** Owner (Rajat Kapoor) — same chat directive 2026-04-27 round 6.
+- **Sealed on:** 2026-04-27 (Sprint 01 Session 7)
+- **Reason:** The player's plan listing — mirrors `coach/plans/index.php` with a Coach dropdown instead of Player. Same fixed-card / format-chip / filter pattern. Sealed together with the coach view because they share visual contract; an unsealed change to one would create asymmetry.
+- **Unsealing requires:** Owner approval in chat per AI_AGENT_FRAMEWORK.md §5.3.
+- **Related sessions/KEs:** Sprint 01 Session 7.
+
+---
+
+## public/assets/css/court-fitness.css — section between SEALED-BEGIN: Plans-index page styles and SEALED-END: Plans-index page styles
+
+- **Sealed by:** Owner (Rajat Kapoor) — same chat directive 2026-04-27 round 6.
+- **Sealed on:** 2026-04-27 (Sprint 01 Session 7)
+- **Reason:** The CSS rules implementing the plans-index visuals — `.cf-filters`, `.cf-plan-card` (fixed-grid override), `.cf-plan-card__chips`, `.cf-format-chip` colour variants (cardio green / weights amber / agility blue), `.cf-section__head--with-action`. Distinct sealed section from the Plan-Builder one earlier in the file; bracketed by its own `SEALED-BEGIN: Plans-index page styles` / `SEALED-END: Plans-index page styles` comment markers. **Only this section is sealed**; sections before it (Header, Cards, Plan Builder sealed-block, etc.) and any future sections after the SEALED-END marker remain editable under normal review.
+- **Unsealing requires:** Owner approval in chat per AI_AGENT_FRAMEWORK.md §5.3. Edits to OTHER (non-bracketed) sections of `court-fitness.css` do not require unsealing.
+- **Related sessions/KEs:** Sprint 01 Session 7.
+
+---
+
 ## How to propose sealing a new file
 
 When an agent notices a file that has become load-bearing, fragile, or has been the source of multiple regressions, they may propose sealing it. The agent drafts an entry matching the schema above and asks Rajat in chat to confirm. Rajat decides; only Rajat may add new seals.

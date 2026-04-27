@@ -715,11 +715,33 @@ code {
    not sealed and may be modified following normal review.
    ========================================================================= */
 
+/* =========================================================================
+   ===== SEALED-BEGIN: Plans-index page styles =====
+   This section is SEALED per owner directive 2026-04-27 (round 6, after
+   visual sign-off): "Once done, this view should be sealed. Or at least
+   that part of the code must be sealed and should not be changed by any
+   incoming AI Agent unless specified to do so."
+   See .ai/core/SEALED_FILES.md for the seal entry. Do NOT modify any rule
+   between SEALED-BEGIN and SEALED-END below without explicit owner approval
+   in chat — modification of a sealed section is a critical framework
+   violation (AI_AGENT_FRAMEWORK.md §5).
+   ========================================================================= */
 /* ---------- Plans-index page (/coach/plans + /player) ----------
    Owner directives 2026-04-27 round 5: fixed-size cards (long Training Target
    doesn't break layout), max-3 format chips per card, filter strip on top
-   (Year, Week Of From, Week Of To, Player or Coach). All rules below are
-   UNSEALED — the Plans-index view is editable under normal review. */
+   (Year, Week Of From, Week Of To, Player or Coach).
+   Round 6: "+ New Plan" button moved to top-right of the page header. */
+
+/* Section header with an action button on the right. */
+.cf-section__head--with-action {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--cf-gap-3);
+    flex-wrap: wrap;
+}
+.cf-section__head--with-action > div { flex: 1 1 auto; min-width: 0; }
+.cf-section__head--with-action .cf-btn { flex: 0 0 auto; }
 
 /* Filter strip — sits above the plan grid. Wraps nicely on narrow widths. */
 .cf-filters {
@@ -825,4 +847,9 @@ code {
    the bottom of every card regardless of variable content above. */
 .cf-plan-card__meta { align-self: start; margin-bottom: 0; }
 .cf-plan-card__foot { align-self: end; }
+/* =========================================================================
+   ===== SEALED-END: Plans-index page styles =====
+   End of the sealed Plans-index CSS section. Rules below this line are
+   not sealed and may be modified following normal review.
+   ========================================================================= */
 

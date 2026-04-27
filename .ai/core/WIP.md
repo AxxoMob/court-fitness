@@ -1,5 +1,21 @@
 # Work In Progress
 
+## Sprint 02 reservations — locked decisions (DO NOT lose, owner-approved 2026-04-27)
+
+These are owner-approved Sprint 02 decisions recorded ahead of time so they don't slip through Sprint 01 close. Full detail in `.ai/sprints/sprint-02/sprint-plan.md`. Summary so it's visible without leaving WIP:
+
+1. **Trainer ↔ Player association: Option 1 + Option 4 paired.**
+   - Option 1 (Player Invite Code) — for standalone freelance trainers. Trainer issues short code, player redeems it. Code expires after first use OR 24 hours.
+   - Option 4 (Admin Assignment) — for institutional setup-managers (1(b) admin role inside court-fitness). Admin drag-drops players onto trainers.
+   - Both write to the same `coach_player_assignments` table; only `assigned_by_user_id` distinguishes the source.
+2. **Admin role (`users.role = 'admin'`)** — adds the third role for institutional setup-managers. Sprint 02 migration.
+3. **`trainer_invite_codes` table** — new migration in Sprint 02 to support Option 1.
+4. **First-visit role choice screen** — three radio options on first SSO landing: standalone trainer / institutional admin / player.
+
+Owner verbatim (2026-04-27 chat): *"It is important that this decision is not lost and does get implemented."*
+
+---
+
 ## Current Sprint: Sprint 01 — "Coach plans a week, player logs actuals, on a phone"
 
 ## Current Status

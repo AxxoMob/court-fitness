@@ -2,9 +2,14 @@
 
 <?= $this->section('content') ?>
 <section class="cf-section">
-    <header class="cf-section__head">
-        <h1 class="cf-h1">My plans</h1>
-        <p class="cf-subtle">Weekly training plans you have created.</p>
+    <header class="cf-section__head cf-section__head--with-action">
+        <div>
+            <h1 class="cf-h1">My Plans</h1>
+            <p class="cf-subtle">Weekly training plans you have created.</p>
+        </div>
+        <a class="cf-btn cf-btn--primary" href="<?= base_url('/coach/plans/new') ?>">
+            + New Plan
+        </a>
     </header>
 
     <!-- ------- Filter strip ------- -->
@@ -57,7 +62,7 @@
             <div class="cf-empty__icon" aria-hidden="true">📋</div>
             <h2 class="cf-h2">No plans match these filters</h2>
             <p>Try widening the date range or clearing the player filter — or create a new plan.</p>
-            <a class="cf-btn cf-btn--primary" href="<?= base_url('/coach/plans/new') ?>">+ New plan</a>
+            <a class="cf-btn cf-btn--primary" href="<?= base_url('/coach/plans/new') ?>">+ New Plan</a>
         </div>
     <?php else: ?>
         <div class="cf-plan-grid">
@@ -109,9 +114,6 @@
             <?php endforeach; ?>
         </div>
 
-        <a class="cf-btn cf-btn--primary cf-btn--block cf-mt-2" href="<?= base_url('/coach/plans/new') ?>">
-            + New plan
-        </a>
     <?php endif; ?>
 </section>
 <?= $this->endSection() ?>
