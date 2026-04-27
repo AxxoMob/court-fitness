@@ -4,10 +4,10 @@
 <?php
 $mode       = 'coach-edit';
 $action_url = base_url('/coach/plans/' . $obfuscated_id);
+$back_url   = base_url('/coach/plans');
+$back_label = 'Back To My Plans';
 include __DIR__ . '/_grid.php';
 ?>
-
-<a class="cf-btn cf-btn--ghost cf-btn--block mt-3" href="<?= base_url('/coach/plans') ?>">&larr; Back to My Plans</a>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

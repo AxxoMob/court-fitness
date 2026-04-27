@@ -399,6 +399,16 @@ code {
     gap: var(--cf-gap-3);
     flex-wrap: wrap;
 }
+/* Right-side group inside the sticky save bar — holds the (optional)
+   "Back" link + the primary Save button side-by-side, so they read as
+   one action cluster on the right while the count sits on the left.
+   Owner directive 2026-04-27 round 7: "← Back To My Plans" moved into
+   the save bar to the LEFT of Save Changes. */
+.cf-save-bar__actions {
+    display: flex;
+    gap: var(--cf-gap-2);
+    align-items: center;
+}
 
 /* Fundamentals strip across the top of new/show grid pages */
 .cf-fundamentals {
