@@ -188,7 +188,7 @@ $showActuals    = $canEditActuals;            // alias for clarity
                         </a>
                     <?php endif; ?>
                     <button type="submit" class="btn btn-primary btn-sm">
-                        <?= $isNew ? 'Save plan' : 'Save changes' ?>
+                        <?= $isNew ? 'Save Plan' : 'Save Changes' ?>
                     </button>
                 </div>
             </div>
