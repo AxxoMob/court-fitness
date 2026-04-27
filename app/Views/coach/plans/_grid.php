@@ -183,7 +183,7 @@ $showActuals    = $canEditActuals;            // alias for clarity
                 <span class="cf-subtle" id="cf-entries-count">0 exercises</span>
                 <div class="cf-save-bar__actions">
                     <?php if (! empty($back_url)): ?>
-                        <a class="cf-btn cf-btn--secondary" href="<?= esc($back_url) ?>">
+                        <a class="btn btn-outline-primary btn-sm" href="<?= esc($back_url) ?>">
                             &larr; <?= esc($back_label ?? 'Back') ?>
                         </a>
                     <?php endif; ?>
