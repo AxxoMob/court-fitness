@@ -20,6 +20,8 @@ Owner verbatim (2026-04-27 chat): *"It is important that this decision is not lo
 
 ## Current Status
 
+**Session 7 closed cleanly 2026-04-27 evening.** Major Sprint 01 polish round + Sprint 02 reservations locked. Total commits in Session 7: 11 (`1ce7b75` Conformance → `c745b60` baseline → `5906fa4` round-1 unseal → `9ccc8f8` round-2 unseal → `e65d907` round-3 boundary → `0ba5919` round-4 colours/text → `a86d1f8` plans-index rebuild → `c478f59` button move + 3 new seals + Sprint 02 plan → `e6761ee` Back-into-save-bar → `edd5fa2` button-size match → `<close>`). Sealed file count grew **6 → 9**: added `coach/plans/index.php`, `player/dashboard.php`, and the plans-index CSS section to the registry. Test suite still 28/28, 63 assertions.
+
 **Session 6 closed (2026-04-26) AND owner-driven post-close iteration completed the same evening.** Session 6's original close at `310c07f` shipped a working inline-grid Plan Builder, but visual sign-off in the same evening turned up real layout issues. Five post-close commits over 2026-04-26 evening rebuilt the grid to match the LTAT live system cell-for-cell, then the owner approved and **sealed the Plan Builder UI** at `0ed4928`.
 
 **Five sealed files added 2026-04-26** (was 1 — only the framework). New seals: `app/Views/coach/plans/_grid.php`, `app/Views/coach/plans/new.php`, `public/assets/js/plan-builder.js`, the SEALED-bracketed section of `public/assets/css/court-fitness.css`, and `.ai/core/plan_builder_ux.md`. Total sealed files: 6. See `.ai/core/SEALED_FILES.md`.
