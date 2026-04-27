@@ -23,32 +23,96 @@ final class Plans extends BaseController
             return redirect()->to('/');
         }
 
-        $db     = db_connect();
-        $userId = (int) session()->get('user_id');
+        $coachId = (int) session()->get('user_id');
+        $db      = db_connect();
+        $req     = $this->request;
 
-        $plans = $db->query(
-            "SELECT
-                tp.id,
-                tp.week_of,
-                tp.training_target,
-                tp.weight_unit,
-                CONCAT(u.first_name, ' ', u.family_name) AS player_name,
-                (SELECT COUNT(*) FROM plan_entries pe
-                  WHERE pe.training_plan_id = tp.id AND pe.deleted_at IS NULL) AS entry_count
-             FROM training_plans tp
-             JOIN users u ON u.id = tp.player_user_id
-             WHERE tp.coach_user_id = ? AND tp.deleted_at IS NULL
-             ORDER BY tp.week_of DESC",
-            [$userId]
-        )->getResultArray();
+        // ---- Filter defaults (per owner directive 2026-04-27) ----
+        // Year defaults to the current year; Week Of From/To default to the last
+        // 4 weeks ending at this week's Monday. Player defaults to "all assigned."
+        $today          = new \DateTimeImmutable();
+        $thisMonday     = $today->modify('-' . ((int) $today->format('N') - 1) . ' days');
+        $defaultYear    = (int) $today->format('Y');
+        $defaultWeekTo  = $thisMonday->format('Y-m-d');
+        $defaultWeekFrom = $thisMonday->modify('-4 weeks')->format('Y-m-d');
 
+        // Read filters from GET. `null` (param absent) → use default; explicit
+        // empty string or 0 → user chose "no filter," respect it.
+        $yearRaw     = $req->getGet('year');
+        $weekFromRaw = $req->getGet('week_from');
+        $weekToRaw   = $req->getGet('week_to');
+        $playerRaw   = $req->getGet('player_id');
+
+        $year      = $yearRaw     === null ? $defaultYear     : (int)    $yearRaw;
+        $weekFrom  = $weekFromRaw === null ? $defaultWeekFrom : (string) $weekFromRaw;
+        $weekTo    = $weekToRaw   === null ? $defaultWeekTo   : (string) $weekToRaw;
+        $playerId  = $playerRaw   === null ? 0                : (int)    $playerRaw;
+
+        // ---- Build filtered query ----
+        $where  = ['tp.coach_user_id = ?', 'tp.deleted_at IS NULL'];
+        $params = [$coachId];
+        if ($year > 0) {
+            $where[]  = 'YEAR(tp.week_of) = ?';
+            $params[] = $year;
+        }
+        if ($weekFrom !== '') {
+            $where[]  = 'tp.week_of >= ?';
+            $params[] = $weekFrom;
+        }
+        if ($weekTo !== '') {
+            $where[]  = 'tp.week_of <= ?';
+            $params[] = $weekTo;
+        }
+        if ($playerId > 0) {
+            $where[]  = 'tp.player_user_id = ?';
+            $params[] = $playerId;
+        }
+
+        $sql = "SELECT
+                    tp.id, tp.week_of, tp.training_target, tp.weight_unit,
+                    CONCAT(u.first_name, ' ', u.family_name) AS player_name,
+                    (SELECT COUNT(*) FROM plan_entries pe
+                      WHERE pe.training_plan_id = tp.id AND pe.deleted_at IS NULL) AS entry_count,
+                    (SELECT GROUP_CONCAT(DISTINCT et.name ORDER BY et.sort_order SEPARATOR ',')
+                     FROM plan_entries pe
+                     JOIN exercise_types et ON et.id = pe.exercise_type_id
+                     WHERE pe.training_plan_id = tp.id AND pe.deleted_at IS NULL) AS formats
+                FROM training_plans tp
+                JOIN users u ON u.id = tp.player_user_id
+                WHERE " . implode(' AND ', $where) . "
+                ORDER BY tp.week_of DESC";
+
+        $plans = $db->query($sql, $params)->getResultArray();
         foreach ($plans as &$p) {
             $p['obfuscated_id'] = IdObfuscator::encode((int) $p['id']);
+            $p['format_list']   = $p['formats'] ? explode(',', (string) $p['formats']) : [];
         }
         unset($p);
 
+        // Assigned players (for the Player filter dropdown)
+        $players = $db->query(
+            "SELECT u.id, u.first_name, u.family_name
+             FROM coach_player_assignments cpa
+             JOIN users u ON u.id = cpa.player_user_id
+             WHERE cpa.coach_user_id = ?
+               AND cpa.is_active = 1 AND cpa.deleted_at IS NULL AND u.deleted_at IS NULL
+             ORDER BY u.first_name, u.family_name",
+            [$coachId]
+        )->getResultArray();
+
+        // Year dropdown options: current ± 2
+        $years = [$defaultYear - 2, $defaultYear - 1, $defaultYear, $defaultYear + 1];
+
         return view('coach/plans/index', [
             'plans'     => $plans,
+            'players'   => $players,
+            'years'     => $years,
+            'filters'   => [
+                'year'      => $year,
+                'week_from' => $weekFrom,
+                'week_to'   => $weekTo,
+                'player_id' => $playerId,
+            ],
             'mainClass' => 'cf-main--wide',
         ]);
     }

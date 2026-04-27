@@ -714,3 +714,115 @@ code {
    End of the sealed Plan Builder CSS section. Rules below this line are
    not sealed and may be modified following normal review.
    ========================================================================= */
+
+/* ---------- Plans-index page (/coach/plans + /player) ----------
+   Owner directives 2026-04-27 round 5: fixed-size cards (long Training Target
+   doesn't break layout), max-3 format chips per card, filter strip on top
+   (Year, Week Of From, Week Of To, Player or Coach). All rules below are
+   UNSEALED — the Plans-index view is editable under normal review. */
+
+/* Filter strip — sits above the plan grid. Wraps nicely on narrow widths. */
+.cf-filters {
+    background: var(--cf-surface);
+    border: 1px solid var(--cf-border);
+    border-radius: var(--cf-radius-md);
+    padding: var(--cf-gap-3);
+    margin-bottom: var(--cf-gap-4);
+    box-shadow: var(--cf-shadow-1);
+}
+.cf-filters__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--cf-gap-3);
+    align-items: end;
+}
+.cf-filters__cell { display: flex; flex-direction: column; gap: 4px; }
+.cf-filters__cell label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--cf-ink-subtle);
+}
+.cf-filters__actions { display: flex; gap: var(--cf-gap-2); }
+
+@media (min-width: 576px) {
+    .cf-filters__row {
+        grid-template-columns: repeat(2, 1fr) auto;
+    }
+    .cf-filters__actions { grid-column: 3; align-self: end; }
+}
+@media (min-width: 992px) {
+    .cf-filters__row {
+        grid-template-columns: 0.8fr 1fr 1fr 1.2fr auto;
+    }
+    .cf-filters__actions { grid-column: auto; }
+}
+
+/* Plan card — fixed structure with grid rows so the Open-plan button always
+   sits at the bottom regardless of how long the Training Target text is. */
+.cf-plan-card {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: var(--cf-gap-3);
+    min-height: 260px;
+}
+/* Override the original .cf-plan-card__head flex (set in the unsealed Plan-cards
+   section above) — we want the head to NOT wrap, and the target chip to truncate
+   if it's too long instead of pushing the date onto a second line. */
+.cf-plan-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--cf-gap-3);
+    margin-bottom: 0;
+    flex-wrap: nowrap;
+}
+.cf-plan-card__week { min-width: 0; flex: 1 1 auto; }
+.cf-plan-card__date {
+    white-space: normal;
+    overflow: hidden;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.cf-plan-card__target-chip {
+    max-width: 50%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 0 0 auto;
+}
+/* When the Target text is genuinely long, shrink the font slightly so more of
+   it shows before truncation kicks in. Owner directive: "We can adjust the
+   Target into smaller font if its a written text perhaps?" */
+.cf-plan-card__target-chip[title] { font-size: 0.74rem; }
+
+/* Format chips strip — between the head and the meta dl. Max 3 chips
+   (Cardio / Weights / Agility). Server already caps at 3 via array_slice. */
+.cf-plan-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 0;
+}
+.cf-format-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+}
+.cf-format-chip--cardio  { background: #C8E6C9; color: #1B5E20; }   /* green */
+.cf-format-chip--weights { background: #FFE0B2; color: #B71C1C; }   /* amber */
+.cf-format-chip--agility { background: #BBDEFB; color: #0D47A1; }   /* blue */
+.cf-format-chip { background: #ECECEC; color: #555; }               /* fallback */
+
+/* Push the meta dl to use available vertical space so the footer stays at
+   the bottom of every card regardless of variable content above. */
+.cf-plan-card__meta { align-self: start; margin-bottom: 0; }
+.cf-plan-card__foot { align-self: end; }
+
