@@ -546,14 +546,22 @@ code {
     border-color: var(--cf-primary);
     box-shadow: 0 0 0 2px rgba(242, 101, 34, 0.18);
 }
-.cf-cell__inputs input.cf-target { background: var(--cf-surface-muted); }
-.cf-cell__inputs input.cf-actual { background: #FBFEF8; border-color: #C8E6C9; }
-.cf-cell__inputs input[readonly] { background: #F2EFEC; color: var(--cf-ink-muted); cursor: default; }
+/* Target = warm beige (matches brand orange family) — coach prescribes here.
+   Actual = cool green (matches "logged" / "done" semantics) — saver fills here.
+   Owner directive 2026-04-27 round 4: "every box, Target and Actual boxes must
+   be differently coloured. A few of them are same colour." Made the difference
+   more saturated and verified it survives in secondary cells. */
+.cf-cell__inputs input.cf-target { background: #FBF1E5; border-color: #E8D5BC; }
+.cf-cell__inputs input.cf-actual { background: #EDF5E8; border-color: #B8D4B8; }
+.cf-cell__inputs input[readonly] { color: var(--cf-ink-muted); cursor: default; }
+.cf-cell__inputs input.cf-target[readonly] { background: #F2EBE0; }
+.cf-cell__inputs input.cf-actual[readonly] { background: #E2ECDD; }
 
-/* Secondary cells: Cardio's 8 less-common cells get a faint visual.
-   They are STILL TYPABLE (per owner 2026-04-26) — the styling is purely a
-   visual hint that these aren't the headline metrics for this format. */
-.cf-cell--secondary .cf-cell__inputs input { background: #F5F2EE; opacity: 0.85; }
+/* Secondary cells: Cardio's 7 less-common cells get a faint visual hint.
+   They are STILL TYPABLE (owner 2026-04-26) and STILL COLOR-DIFFERENTIATED
+   (owner 2026-04-27) — opacity is the only secondary-effect; the colours
+   pass through. */
+.cf-cell--secondary .cf-cell__inputs input { opacity: 0.7; }
 .cf-cell--secondary .cf-cell__inputs input:focus { opacity: 1; }
 
 /* Add/remove buttons on the left of each row (small, square, paired). */

@@ -406,7 +406,7 @@
         const tgt = document.createElement('input');
         tgt.type = 'number';
         tgt.className = 'cf-target';
-        tgt.placeholder = 'target';
+        tgt.placeholder = 'Target';
         tgt.title = `Target ${def.label}`;
         if (def.min  !== undefined) tgt.min  = String(def.min);
         if (def.max  !== undefined) tgt.max  = String(def.max);
@@ -424,7 +424,7 @@
             const act = document.createElement('input');
             act.type = 'number';
             act.className = 'cf-actual';
-            act.placeholder = 'actual';
+            act.placeholder = 'Actual';
             act.title = `Actual ${def.label}`;
             if (def.min  !== undefined) act.min  = String(def.min);
             if (def.max  !== undefined) act.max  = String(def.max);

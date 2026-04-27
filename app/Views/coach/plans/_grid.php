@@ -161,7 +161,7 @@ $showActuals    = $canEditActuals;            // alias for clarity
         </div>
 
         <button type="button" class="cf-add-block" id="cf-add-block">
-            + Add training date <?= $isNew ? '' : '/ session' ?>
+            + Add Training Week / Date / Session
         </button>
 
         <?php if ($isNew): ?>
