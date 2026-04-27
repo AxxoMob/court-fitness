@@ -445,24 +445,29 @@ code {
     display: none;   /* labels not shown in dense LTAT-style header; titles via title attr */
 }
 
-/* Tablet portrait → small laptop (576-1199): single-row 4-col head.
-   Owner directive 2026-04-27 round 2: "we can also squeeze in the first
-   row, Date | Afternoon | Exercise also in one row." Icon + 3 head-cells
-   (date, session, format) all on one line — no row wrapping, no empty
-   cells. Replaces Fix 2 (icon row-span) which is no longer needed. */
-@media (max-width: 1199.98px) and (min-width: 576px) {
+/* Compact tablet/phone-landscape → small laptop (480-1199): single-row 4-col head.
+   Owner directive 2026-04-27 round 3: "let's try the changed boundary to 480 or
+   540." Lowered the threshold from 576 → 480 so 568px (iPhone-SE landscape) ALSO
+   gets the compact single-row layout instead of stacking. Icon + 3 head-cells
+   (date, session, format) all on one line — no row wrapping, no empty cells. */
+@media (max-width: 1199.98px) and (min-width: 480px) {
     .cf-block__head {
         grid-template-columns: 36px 1fr 1fr 1fr;
         row-gap: 0;
     }
 }
-/* Phone (<576): each head-cell stacks full-width below the delete icon.
-   Defensive width: 100% on form controls — Bootstrap's form-select sometimes
-   collapses to content width inside CSS-grid tracks; explicit override per
-   owner observation 2026-04-27 round 2 (the "We" tiny-format-box bug). */
-@media (max-width: 575.98px) {
+/* Tiny phones only (<480): each head-cell stacks full-width below the delete icon.
+   - min-width: 0 on the cell prevents CSS-grid's default `min-width: auto` from
+     forcing the cell to its content's intrinsic minimum (which can leave the
+     form-select at ~30-40px when Bootstrap's auto-shrink kicks in).
+   - Defensive width: 100% on form controls is belt-and-braces against the
+     "tiny We format-box" bug observed in round 2 screenshots. */
+@media (max-width: 479.98px) {
     .cf-block__head { grid-template-columns: 36px 1fr; }
-    .cf-block__head .cf-block__head-cell { grid-column: 2; }
+    .cf-block__head .cf-block__head-cell {
+        grid-column: 2;
+        min-width: 0;
+    }
     .cf-block__head .cf-block__head-cell .form-control,
     .cf-block__head .cf-block__head-cell .form-select { width: 100%; }
 }
@@ -674,8 +679,10 @@ code {
     .cf-audit { padding-left: 0; margin-top: var(--cf-gap-2); }
 }
 
-/* 576-1199: cat + sub on one row */
-@media (max-width: 1199.98px) and (min-width: 576px) {
+/* 480-1199: cat + sub on one row.
+   Boundary lowered from 576 → 480 (owner round 3) so 568px and small phones
+   in landscape get cat + sub side-by-side instead of stacking. */
+@media (max-width: 1199.98px) and (min-width: 480px) {
     .cf-row {
         grid-template-columns: auto 1fr 1fr;
         grid-template-areas:
@@ -684,8 +691,8 @@ code {
     }
 }
 
-/* 0-575: cat above sub (stacked) */
-@media (max-width: 575.98px) {
+/* 0-479: cat above sub (stacked) — only the smallest phones */
+@media (max-width: 479.98px) {
     .cf-row {
         grid-template-columns: auto 1fr;
         grid-template-areas:
