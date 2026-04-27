@@ -445,27 +445,26 @@ code {
     display: none;   /* labels not shown in dense LTAT-style header; titles via title attr */
 }
 
-@media (max-width: 1199.98px) {
+/* Tablet portrait → small laptop (576-1199): single-row 4-col head.
+   Owner directive 2026-04-27 round 2: "we can also squeeze in the first
+   row, Date | Afternoon | Exercise also in one row." Icon + 3 head-cells
+   (date, session, format) all on one line — no row wrapping, no empty
+   cells. Replaces Fix 2 (icon row-span) which is no longer needed. */
+@media (max-width: 1199.98px) and (min-width: 576px) {
     .cf-block__head {
-        grid-template-columns: 36px 1fr 1fr;
-        row-gap: var(--cf-gap-2);
-    }
-    .cf-block__head .cf-block__head-cell:nth-child(4),
-    .cf-block__head .cf-block__head-cell:nth-child(5) {
-        grid-column: span 1;
-    }
-    /* Fix 2 (owner-approved 2026-04-27): icon spans both rows so col 1 row 2
-       isn't visually empty when the 5 children wrap into 2 rows × 3 cols. */
-    .cf-block__head-icon {
-        grid-row: 1 / span 2;
-        align-self: start;
+        grid-template-columns: 36px 1fr 1fr 1fr;
+        row-gap: 0;
     }
 }
+/* Phone (<576): each head-cell stacks full-width below the delete icon.
+   Defensive width: 100% on form controls — Bootstrap's form-select sometimes
+   collapses to content width inside CSS-grid tracks; explicit override per
+   owner observation 2026-04-27 round 2 (the "We" tiny-format-box bug). */
 @media (max-width: 575.98px) {
     .cf-block__head { grid-template-columns: 36px 1fr; }
     .cf-block__head .cf-block__head-cell { grid-column: 2; }
-    /* On very narrow phones the head goes full-stack; reset the row-span. */
-    .cf-block__head-icon { grid-row: auto; }
+    .cf-block__head .cf-block__head-cell .form-control,
+    .cf-block__head .cf-block__head-cell .form-select { width: 100%; }
 }
 
 .cf-block__head-icon {
@@ -630,7 +629,7 @@ code {
 
 /* ---------- Mobile / narrow tablet / iPad-landscape collapse (<1200px) ----------
    Each exercise row becomes a stacked card. Cells go to a 2-column grid. The
-   compound block header rewraps to two rows. NO horizontal scroll at any width.
+   compound block header rewraps. NO horizontal scroll at any width.
 
    Threshold raised from <992px to <1200px on 2026-04-27 (Fix 1, owner-approved):
    "Yes please go ahead with (B), Apply Fix 1 & Fix 2, skip Fix 3 — My logic,
@@ -639,14 +638,18 @@ code {
    the 556px available — confirmed by owner's session7-992px.png screenshot which
    shows only 7 of 10 cells visible. Collapsing to stacked-card mode through the
    1024-1199 iPad-landscape range also benefits touch input.
+
+   Layout split — round 2, owner-approved 2026-04-27:
+   "Just like there are two sets of Target & Actual in one row, can we not adjust
+    the Category and Sub-Category also in one row for 568 / 768 & 992?"
+   - 576-1199px: cat + sub side by side on one row (3-col grid).
+   - 0-575px: cat above sub (current stacked layout).
 */
+
+/* Shared rules for all sub-1200 widths: card visual, cells in 2-col grid,
+   bigger inputs, audit display reset. */
 @media (max-width: 1199.98px) {
     .cf-row {
-        grid-template-columns: auto 1fr;
-        grid-template-areas:
-            "controls cat"
-            "controls sub"
-            "cells    cells";
         gap: var(--cf-gap-2);
         background: var(--cf-surface);
         padding: var(--cf-gap-3);
@@ -669,6 +672,27 @@ code {
     .cf-cell__label { font-size: 0.7rem; }
     .cf-cell__inputs input { padding: 6px 8px; font-size: 0.95rem; }
     .cf-audit { padding-left: 0; margin-top: var(--cf-gap-2); }
+}
+
+/* 576-1199: cat + sub on one row */
+@media (max-width: 1199.98px) and (min-width: 576px) {
+    .cf-row {
+        grid-template-columns: auto 1fr 1fr;
+        grid-template-areas:
+            "controls cat sub"
+            "cells    cells cells";
+    }
+}
+
+/* 0-575: cat above sub (stacked) */
+@media (max-width: 575.98px) {
+    .cf-row {
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+            "controls cat"
+            "controls sub"
+            "cells    cells";
+    }
 }
 /* =========================================================================
    ===== SEALED-END: Plan Builder + show inline-grid styles =====
