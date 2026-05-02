@@ -77,3 +77,19 @@ defined('EXIT_USER_INPUT')     || define('EXIT_USER_INPUT', 7);     // invalid u
 defined('EXIT_DATABASE')       || define('EXIT_DATABASE', 8);       // database error
 defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9);      // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125);    // highest automatically-assigned error code
+
+/*
+|--------------------------------------------------------------------------
+|   DEFINE APP VERSION
+|--------------------------------------------------------------------------
+|   Not exactly rules but recommendations:
+|   1. Since it is only shown to the User, it can be any String.
+|   2. But like almost all the apps, it is better to follow "major.minor.point" format.
+|
+|   1.0.0 to 1.0.1 for a bug fix
+|   1.0.0 to 1.2.0 for any new feature
+|   1.0.0 to 2.0.0 for a major design change, like supporting tablets etc.
+*/
+defined('APP_VERSION')  	OR define('APP_VERSION', time());
+defined('SITE_TITLE')   	OR define('SITE_TITLE', 'ATF');
+defined('SITE_NAME')    	OR define('SITE_NAME', 'Asian Tennis Federation - Fitness');
