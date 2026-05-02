@@ -124,7 +124,6 @@
                     <li><i class="far fa-check-circle"></i> Injury prevention focus</li>
                     <li><i class="far fa-check-circle"></i> Track progress & achieve goals</li>
                 </ul>
-                <a href="#" class="btn btn-lime px-4 py-2">About Us <i class="fas fa-arrow-right ms-2"></i></a>
             </div>
         </div>
     </div>

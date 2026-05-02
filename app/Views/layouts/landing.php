@@ -86,8 +86,7 @@
                                 </div>
                             </div>
                             <div class="d-flex align-items-center">
-                                <a href="#" class="btn btn-primary me-3 px-4 py-2">Start Your Journey <i
-                                    class="fas fa-arrow-right ms-2"></i></a>
+                                <a href="https://www.org.hitcourt.com/login" class="btn btn-primary me-3 px-4 py-2">Start Your Journey <i class="fas fa-arrow-right ms-2"></i></a>
                             </div>
                         </div>
                         <div class="col-lg-6 hero-image-col">
@@ -112,8 +111,8 @@
                             &copy; <?= date('Y') ?> TennisFit. All rights reserved.
                         </div>
                         <div class="col-md-6 text-md-end footer-legal-links">
-                            <a href="#" class="me-3">Privacy Policy</a>
-                            <a href="#">Terms & Conditions</a>
+                            <a href="/" class="me-3">Privacy Policy</a>
+                            <a href="/">Terms & Conditions</a>
                         </div>
                     </div>
                 </div>
